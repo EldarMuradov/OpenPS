@@ -6,7 +6,7 @@ namespace openps
 
 	struct raycast_info
 	{
-		ref<rigidbody> actor;
+		rigidbody* actor = nullptr;
 
 		float distance = 0.0f;
 		unsigned int hitCount = 0;

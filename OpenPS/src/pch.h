@@ -41,6 +41,10 @@
 #include <iostream>
 #include <memory>
 
+#include <set>
+#include <unordered_map>
+#include <queue>
+
 static physx::PxVec3 gravity(0.0f, -9.8f, 0.0f);
 
 template <typename T> using ref = std::shared_ptr<T>;
@@ -137,7 +141,7 @@ filterData.data.word2 = hitTriggers ? 1 : 0
 #define PX_SCENE_QUERY_COLLECT_OVERLAP() results.clear(); \
 		results.resize(buffer.getNbTouches()); \
 		size_t resultSize = results.size(); \
-		for (int32 i = 0; i < resultSize; i++) \
+		for (int32_t i = 0; i < resultSize; i++) \
 		{ \
 			auto& hitInfo = results[i]; \
 			const auto& hit = buffer.getTouch(i); \
