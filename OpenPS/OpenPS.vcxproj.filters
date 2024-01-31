@@ -62,25 +62,25 @@
     <ClInclude Include="src\pch.h">
       <Filter>headers</Filter>
     </ClInclude>
-    <ClInclude Include="src\openps.h">
+    <ClInclude Include="include\openps\openps.h">
       <Filter>headers</Filter>
     </ClInclude>
-    <ClInclude Include="src\memory\ememory.h">
+    <ClInclude Include="include\openps\memory\ememory.h">
       <Filter>headers\memory</Filter>
     </ClInclude>
-    <ClInclude Include="src\core\px_wrappers.h">
+    <ClInclude Include="include\openps\core\px_wrappers.h">
       <Filter>headers\core</Filter>
     </ClInclude>
-    <ClInclude Include="src\core\px_structs.h">
+    <ClInclude Include="include\openps\core\px_structs.h">
       <Filter>headers\core</Filter>
     </ClInclude>
-    <ClInclude Include="src\ecs\px_rigidbody.h">
+    <ClInclude Include="include\openps\ecs\px_rigidbody.h">
       <Filter>headers\ecs</Filter>
     </ClInclude>
-    <ClInclude Include="src\core\px_physics.h">
+    <ClInclude Include="include\openps\core\px_physics.h">
       <Filter>headers\core</Filter>
     </ClInclude>
-    <ClInclude Include="src\core\px_logger.h">
+    <ClInclude Include="include\openps\core\px_logger.h">
       <Filter>headers\core</Filter>
     </ClInclude>
   </ItemGroup>

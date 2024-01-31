@@ -1,6 +1,6 @@
 #include <pch.h>
 #include <core/px_wrappers.h>
-#include "px_physics.h"
+#include "core/px_physics.h"
 
 void openps::collision_contact_callback::onContact(const PxContactPairHeader& pairHeader, const PxContactPair* pairs, PxU32 nbPairs)
 {

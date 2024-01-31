@@ -72,12 +72,12 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <TargetName>OpenPS</TargetName>
-    <IncludePath>src;$(IncludePath)</IncludePath>
+    <IncludePath>include\openps;src;$(IncludePath)</IncludePath>
     <LibraryPath>ext\CUDA\lib\x64;ext\libs\Debug;$(LibraryPath)</LibraryPath>
     <ExternalIncludePath>ext\CUDA\include;ext\PhysX\physx;$(ExternalIncludePath)</ExternalIncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>src;$(IncludePath)</IncludePath>
+    <IncludePath>include\openps;src;$(IncludePath)</IncludePath>
     <LibraryPath>ext\CUDA\lib\x64;ext\libs\Release;$(LibraryPath)</LibraryPath>
     <ExternalIncludePath>ext\PhysX\physx;ext\CUDA\include;$(ExternalIncludePath)</ExternalIncludePath>
   </PropertyGroup>
