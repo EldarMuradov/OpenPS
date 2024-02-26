@@ -1,6 +1,6 @@
 #pragma once
 
-static uint32_t alignTo(uint32_t currentOffset, uint32_t alignment)
+NODISCARD static uint32_t alignTo(uint32_t currentOffset, uint32_t alignment)
 {
 	uint32_t mask = alignment - 1;
 	uint32_t misalignment = currentOffset & mask;
@@ -8,7 +8,7 @@ static uint32_t alignTo(uint32_t currentOffset, uint32_t alignment)
 	return currentOffset + adjustment;
 }
 
-static uint64_t alignTo(uint64_t currentOffset, uint64_t alignment)
+NODISCARD static uint64_t alignTo(uint64_t currentOffset, uint64_t alignment)
 {
 	uint64_t mask = alignment - 1;
 	uint64_t misalignment = currentOffset & mask;
@@ -16,7 +16,7 @@ static uint64_t alignTo(uint64_t currentOffset, uint64_t alignment)
 	return currentOffset + adjustment;
 }
 
-static void* alignTo(void* currentAddress, uint64_t alignment)
+NODISCARD static void* alignTo(void* currentAddress, uint64_t alignment)
 {
 	uint64_t mask = alignment - 1;
 	uint64_t misalignment = (uint64_t)(currentAddress)&mask;
@@ -73,18 +73,18 @@ namespace openps
 
 		void ensureFreeSize(uint64_t size);
 
-		void* allocate(uint64_t size, uint64_t alignment = 1, bool clearToZero = false);
+		NODISCARD void* allocate(uint64_t size, uint64_t alignment = 1, bool clearToZero = false);
 
 		template <typename T>
-		T* allocate(uint32_t count = 1, bool clearToZero = false)
+		NODISCARD T* allocate(uint32_t count = 1, bool clearToZero = false)
 		{
 			return (T*)allocate(sizeof(T) * count, alignof(T), clearToZero);
 		}
 
-		void* getCurrent(uint64_t alignment = 1);
+		NODISCARD void* getCurrent(uint64_t alignment = 1);
 
 		template <typename T>
-		T* getCurrent()
+		NODISCARD T* getCurrent()
 		{
 			return (T*)getCurrent(alignof(T));
 		}
@@ -93,10 +93,10 @@ namespace openps
 
 		void reset(bool freeMemory = false);
 
-		memory_marker getMarker();
+		NODISCARD memory_marker getMarker();
 		void resetToMarker(memory_marker marker);
 
-		uint8_t* base() { return memory; }
+		NODISCARD uint8_t* base() { return memory; }
 
 	protected:
 		void ensureFreeSizeInternal(uint64_t size);

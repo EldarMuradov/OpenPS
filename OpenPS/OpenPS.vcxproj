@@ -162,18 +162,19 @@
     <ClCompile Include="src\core\px_physics.cpp" />
     <ClCompile Include="src\core\px_structs.cpp" />
     <ClCompile Include="src\core\px_wrappers.cpp" />
+    <ClCompile Include="src\ecs\px_colliders.cpp" />
     <ClCompile Include="src\ecs\px_rigidbody.cpp" />
     <ClCompile Include="src\memory\ememory.cpp" />
     <ClCompile Include="src\pch.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\core\px_logger.h" />
-    <ClInclude Include="src\core\px_physics.h" />
-    <ClInclude Include="src\core\px_structs.h" />
-    <ClInclude Include="src\core\px_wrappers.h" />
-    <ClInclude Include="src\ecs\px_rigidbody.h" />
-    <ClInclude Include="src\memory\ememory.h" />
-    <ClInclude Include="src\openps.h" />
+    <ClInclude Include="include\openps\core\px_logger.h" />
+    <ClInclude Include="include\openps\core\px_physics.h" />
+    <ClInclude Include="include\openps\core\px_structs.h" />
+    <ClInclude Include="include\openps\core\px_wrappers.h" />
+    <ClInclude Include="include\openps\ecs\px_colliders.h" />
+    <ClInclude Include="include\openps\ecs\px_rigidbody.h" />
+    <ClInclude Include="include\openps\memory\ememory.h" />
     <ClInclude Include="src\pch.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

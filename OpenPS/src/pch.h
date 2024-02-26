@@ -10,6 +10,8 @@
 
 #define PX_ENABLE_RAYCAST_CCD 0
 
+#define NODISCARD [[nodiscard]]
+
 #if _DEBUG
 #define PX_ENABLE_PVD 1
 #else
@@ -51,7 +53,7 @@ template <typename T> using ref = std::shared_ptr<T>;
 template <typename T> using weakref = std::weak_ptr<T>;
 
 template <typename T, typename... Args>
-inline ref<T> make_ref(Args&&... args)
+NODISCARD inline ref<T> make_ref(Args&&... args)
 {
 	return std::make_shared<T>(std::forward<Args>(args)...);
 }
@@ -72,13 +74,13 @@ template <typename T> inline constexpr bool is_ref_v = is_ref<T>::value;
 #endif
 
 template <typename T>
-constexpr inline auto min(T a, T b)
+NODISCARD constexpr inline auto min(T a, T b)
 {
 	return (a < b) ? a : b;
 }
 
 template <typename T>
-constexpr inline auto max(T a, T b)
+NODISCARD constexpr inline auto max(T a, T b)
 {
 	return (a < b) ? b : a;
 }
@@ -105,18 +107,18 @@ constexpr inline auto max(T a, T b)
 #define BYTE_TO_MB(b) ((b) / (1024 * 1024))
 #define BYTE_TO_GB(b) ((b) / (1024 * 1024))
 
-static constexpr float lerp(float l, float u, float t) { return l + t * (u - l); }
-static constexpr float inverseLerp(float l, float u, float v) { return (v - l) / (u - l); }
-static constexpr float remap(float v, float oldL, float oldU, float newL, float newU) { return lerp(newL, newU, inverseLerp(oldL, oldU, v)); }
-static constexpr float clamp(float v, float l, float u) { float r = max(l, v); r = min(u, r); return r; }
-static constexpr uint32_t clamp(uint32_t v, uint32_t l, uint32_t u) { uint32_t r = max(l, v); r = min(u, r); return r; }
-static constexpr int32_t clamp(int32_t v, int32_t l, int32_t u) { int32_t r = max(l, v); r = min(u, r); return r; }
-static constexpr float clamp01(float v) { return clamp(v, 0.f, 1.f); }
-static constexpr float saturate(float v) { return clamp01(v); }
-static constexpr float smoothstep(float t) { return t * t * (3.f - 2.f * t); }
-static constexpr float smoothstep(float l, float u, float v) { return smoothstep(clamp01(inverseLerp(l, u, v))); }
-static constexpr uint32_t bucketize(uint32_t problemSize, uint32_t bucketSize) { return (problemSize + bucketSize - 1) / bucketSize; }
-static constexpr uint64_t bucketize(uint64_t problemSize, uint64_t bucketSize) { return (problemSize + bucketSize - 1) / bucketSize; }\
+NODISCARD static constexpr float lerp(float l, float u, float t) { return l + t * (u - l); }
+NODISCARD static constexpr float inverseLerp(float l, float u, float v) { return (v - l) / (u - l); }
+NODISCARD static constexpr float remap(float v, float oldL, float oldU, float newL, float newU) { return lerp(newL, newU, inverseLerp(oldL, oldU, v)); }
+NODISCARD static constexpr float clamp(float v, float l, float u) { float r = max(l, v); r = min(u, r); return r; }
+NODISCARD static constexpr uint32_t clamp(uint32_t v, uint32_t l, uint32_t u) { uint32_t r = max(l, v); r = min(u, r); return r; }
+NODISCARD static constexpr int32_t clamp(int32_t v, int32_t l, int32_t u) { int32_t r = max(l, v); r = min(u, r); return r; }
+NODISCARD static constexpr float clamp01(float v) { return clamp(v, 0.f, 1.f); }
+NODISCARD static constexpr float saturate(float v) { return clamp01(v); }
+NODISCARD static constexpr float smoothstep(float t) { return t * t * (3.f - 2.f * t); }
+NODISCARD static constexpr float smoothstep(float l, float u, float v) { return smoothstep(clamp01(inverseLerp(l, u, v))); }
+NODISCARD static constexpr uint32_t bucketize(uint32_t problemSize, uint32_t bucketSize) { return (problemSize + bucketSize - 1) / bucketSize; }
+NODISCARD static constexpr uint64_t bucketize(uint64_t problemSize, uint64_t bucketSize) { return (problemSize + bucketSize - 1) / bucketSize; }\
 
 #define PX_SCENE_QUERY_SETUP(blockSingle) \
 const PxHitFlags hitFlags = PxHitFlag::ePOSITION | PxHitFlag::eNORMAL | PxHitFlag::eMESH_MULTIPLE | PxHitFlag::eUV; \
@@ -150,9 +152,9 @@ filterData.data.word2 = hitTriggers ? 1 : 0
 
 namespace physx
 {
-	static PxVec2 min(const PxVec2& a, const PxVec2& b) noexcept { return PxVec2(std::min(a.x, b.x), std::min(a.y, b.y)); }
-	static PxVec3 min(const PxVec3& a, const PxVec3& b) noexcept { return PxVec3(std::min(a.x, b.x), std::min(a.y, b.y), std::min(a.z, b.z)); }
+	NODISCARD static PxVec2 min(const PxVec2& a, const PxVec2& b) noexcept { return PxVec2(std::min(a.x, b.x), std::min(a.y, b.y)); }
+	NODISCARD static PxVec3 min(const PxVec3& a, const PxVec3& b) noexcept { return PxVec3(std::min(a.x, b.x), std::min(a.y, b.y), std::min(a.z, b.z)); }
 
-	static PxVec2 max(const PxVec2& a, const PxVec2& b) noexcept { return PxVec2(std::max(a.x, b.x), std::max(a.y, b.y)); }
-	static PxVec3 max(const PxVec3& a, const PxVec3& b) noexcept { return PxVec3(std::max(a.x, b.x), std::max(a.y, b.y), std::max(a.z, b.z)); }
+	NODISCARD static PxVec2 max(const PxVec2& a, const PxVec2& b) noexcept { return PxVec2(std::max(a.x, b.x), std::max(a.y, b.y)); }
+	NODISCARD static PxVec3 max(const PxVec3& a, const PxVec3& b) noexcept { return PxVec3(std::max(a.x, b.x), std::max(a.y, b.y), std::max(a.z, b.z)); }
 }

@@ -44,6 +44,34 @@ namespace openps
 
 		void update(float dt);
 
+		void addActor(rigidbody* actor, PxRigidActor* ractor, bool addToScene = true)
+		{
+			scene->lockWrite();
+			if (addToScene)
+				scene->addActor(*ractor);
+
+			actors.emplace(actor);
+			actorsMap.insert(std::make_pair(ractor, actor));
+			scene->unlockWrite();
+		}
+
+		void removeActor(rigidbody* actor)
+		{
+			scene->lockWrite();
+			actors.erase(actor);
+			actorsMap.erase(actor->getRigidActor());
+			scene->removeActor(*actor->getRigidActor());
+			scene->unlockWrite();
+		}
+
+		void lockRead() { scene->lockRead(); }
+		void unlockRead() { scene->unlockRead(); }
+
+		void lockWrite() { scene->lockWrite(); }
+		void unlockWrite() { scene->unlockWrite(); }
+
+		NODISCARD PxPhysics* getPhysicsImpl() const noexcept { return physicsImpl; }
+
 		const raycast_info raycast(rigidbody* rb, const PxVec3& dir, int maxDist = PX_NB_MAX_RAYCAST_DISTANCE, bool hitTriggers = true, uint32_t layerMask = 0, int maxHits = PX_NB_MAX_RAYCAST_HITS) noexcept
 		{
 			PX_SCENE_QUERY_SETUP(true);

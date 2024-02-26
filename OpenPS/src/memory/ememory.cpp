@@ -39,7 +39,7 @@ namespace openps
 		}
 	}
 
-	void* eallocator::allocate(uint64_t size, uint64_t alignment, bool clearToZero)
+	NODISCARD void* eallocator::allocate(uint64_t size, uint64_t alignment, bool clearToZero)
 	{
 		if (size == 0)
 			return 0;
@@ -71,7 +71,7 @@ namespace openps
 		return result;
 	}
 
-	void* eallocator::getCurrent(uint64_t alignment)
+	NODISCARD void* eallocator::getCurrent(uint64_t alignment)
 	{
 		return memory + alignTo(current, alignment);
 	}
@@ -95,7 +95,7 @@ namespace openps
 		resetToMarker(memory_marker{ 0 });
 	}
 
-	memory_marker eallocator::getMarker()
+	NODISCARD memory_marker eallocator::getMarker()
 	{
 		return { current };
 	}

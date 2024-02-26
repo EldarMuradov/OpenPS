@@ -5,6 +5,12 @@
 namespace
 {
     ref<openps::physics> physics;
+
+    openps::rigidbody* rb1 = nullptr;
+    openps::rigidbody* rb2 = nullptr;
+
+    openps::collider_base* coll1 = nullptr;
+    openps::collider_base* coll2 = nullptr;
 }
 
 static void test_log_message(const char* message) { std::cout << message << "\n"; }
@@ -19,6 +25,14 @@ static bool initialize()
     physics = make_ref<openps::physics>(desc);
     openps::logger::log_message("Started successfuly");
 
+    rb1 = new openps::rigidbody(1, openps::rigidbody_type::Static);
+    coll1 = new openps::box_collider(1, 1, 1);
+    openps::createRigidbodyActor(rb1, coll1, physx::PxTransform(physx::PxVec3(0)));
+
+    rb2 = new openps::rigidbody(2, openps::rigidbody_type::Dynamic);
+    coll2 = new openps::sphere_collider(1);
+    openps::createRigidbodyActor(rb2, coll2, physx::PxTransform(physx::PxVec3(0, 50, 0)));
+
     return true;
 }
 
@@ -26,6 +40,15 @@ static void update(float dt)
 {
     openps::logger::log_message("Update");
     physics->update(dt);
+
+    physics->lockRead();
+
+    const auto pos1 = rb1->getPosition();
+    openps::logger::log_message(std::to_string(pos1.y).c_str());
+
+    const auto pos2 = rb2->getPosition();
+    openps::logger::log_message(std::to_string(pos2.y).c_str());
+    physics->unlockRead();
 }
 
 static void release()
@@ -45,6 +68,7 @@ int main()
     {
         auto start = std::chrono::high_resolution_clock::now();
         float elapsed_time = 0.0f;
+
         while (true)
         {
             update(elapsed_time);

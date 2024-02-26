@@ -6,3 +6,4 @@
 #include <core/px_wrappers.h>
 
 #include <ecs/px_rigidbody.h>
+#include <ecs/px_colliders.h>

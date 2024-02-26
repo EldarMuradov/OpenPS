@@ -139,9 +139,12 @@ namespace openps
 		sceneDesc.flags |= PxSceneFlag::eREQUIRE_RW_LOCK;
 		cudaContextManager = PxCreateCudaContextManager(*foundation, cudaContextManagerDesc, &profilerCallback);
 		sceneDesc.cudaContextManager = cudaContextManager;
+		sceneDesc.cudaContextManager = cudaContextManager;
 		sceneDesc.frictionType = PxFrictionType::eTWO_DIRECTIONAL;
 		sceneDesc.flags |= physx::PxSceneFlag::eENABLE_ACTIVE_ACTORS;
 		sceneDesc.flags |= PxSceneFlag::eENABLE_PCM;
+		sceneDesc.staticStructure = PxPruningStructureType::eDYNAMIC_AABB_TREE;
+		sceneDesc.solverType = PxSolverType::eTGS;
 		sceneDesc.flags |= PxSceneFlag::eEXCLUDE_KINEMATICS_FROM_ACTIVE_ACTORS;
 		sceneDesc.flags |= PxSceneFlag::eENABLE_ENHANCED_DETERMINISM;
 		sceneDesc.flags |= PxSceneFlag::eENABLE_STABILIZATION;
