@@ -1,6 +1,6 @@
 # OpenPS
 
-Open Physics Simulaton Library based on PhysX 5.3.1 and CUDA. 
+Open Physics Simulaton Library based on Era Engine Physics, PhysX 5.3.1 and CUDA. 
 
 ## About
 
