@@ -44,6 +44,16 @@ namespace openps
 
 		void update(float dt);
 
+		void addAggregate(PxAggregate* aggregate) noexcept
+		{
+		
+		}
+
+		void removeAggregate(PxAggregate* aggregate) noexcept
+		{
+		
+		}
+
 		void addActor(rigidbody* actor, PxRigidActor* ractor, bool addToScene = true)
 		{
 			scene->lockWrite();

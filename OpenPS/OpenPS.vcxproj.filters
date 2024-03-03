@@ -60,6 +60,12 @@
     <ClCompile Include="src\ecs\px_colliders.cpp">
       <Filter>sources\ecs</Filter>
     </ClCompile>
+    <ClCompile Include="src\core\px_tasks.cpp">
+      <Filter>sources\core</Filter>
+    </ClCompile>
+    <ClCompile Include="src\core\px_aggregates.cpp">
+      <Filter>sources\core</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\pch.h">
@@ -85,6 +91,12 @@
     </ClInclude>
     <ClInclude Include="include\openps\ecs\px_colliders.h">
       <Filter>headers\ecs</Filter>
+    </ClInclude>
+    <ClInclude Include="include\openps\core\px_tasks.h">
+      <Filter>headers\core</Filter>
+    </ClInclude>
+    <ClInclude Include="include\openps\core\px_aggregates.h">
+      <Filter>headers\core</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -158,9 +158,11 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="example.cpp" />
+    <ClCompile Include="src\core\px_aggregates.cpp" />
     <ClCompile Include="src\core\px_logger.cpp" />
     <ClCompile Include="src\core\px_physics.cpp" />
     <ClCompile Include="src\core\px_structs.cpp" />
+    <ClCompile Include="src\core\px_tasks.cpp" />
     <ClCompile Include="src\core\px_wrappers.cpp" />
     <ClCompile Include="src\ecs\px_colliders.cpp" />
     <ClCompile Include="src\ecs\px_rigidbody.cpp" />
@@ -168,9 +170,11 @@
     <ClCompile Include="src\pch.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="include\openps\core\px_aggregates.h" />
     <ClInclude Include="include\openps\core\px_logger.h" />
     <ClInclude Include="include\openps\core\px_physics.h" />
     <ClInclude Include="include\openps\core\px_structs.h" />
+    <ClInclude Include="include\openps\core\px_tasks.h" />
     <ClInclude Include="include\openps\core\px_wrappers.h" />
     <ClInclude Include="include\openps\ecs\px_colliders.h" />
     <ClInclude Include="include\openps\ecs\px_rigidbody.h" />

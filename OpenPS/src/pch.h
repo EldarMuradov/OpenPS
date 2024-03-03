@@ -47,10 +47,16 @@
 #include <unordered_map>
 #include <queue>
 
+#include <functional>
+#include <tuple>
+
 static physx::PxVec3 gravity(0.0f, -9.8f, 0.0f);
 
 template <typename T> using ref = std::shared_ptr<T>;
 template <typename T> using weakref = std::weak_ptr<T>;
+
+template <typename F_, typename... Args>
+using IsCallableFunc = std::enable_if_t<std::is_invocable_v<F_, Args...>, bool>;
 
 template <typename T, typename... Args>
 NODISCARD inline ref<T> make_ref(Args&&... args)
