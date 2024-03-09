@@ -27,6 +27,22 @@ namespace openps
 		size_t indexBufferSize{};
 	};
 
+	template<typename VBT>
+	struct convex_mesh_descriptor
+	{
+		VBT* vertexBuffer = nullptr;
+		size_t vertexBufferStride = sizeof(VBT);
+		size_t vertexBufferSize{};
+	};
+
+	template<>
+	struct convex_mesh_descriptor<PxVec3>
+	{
+		PxVec3* vertexBuffer = nullptr;
+		size_t vertexBufferStride = sizeof(PxVec3);
+		size_t vertexBufferSize{};
+	};
+
 	template<>
 	struct triangle_mesh_descriptor<PxVec3, PxU32>
 	{
@@ -41,7 +57,13 @@ namespace openps
 	struct px_triangle_mesh_collider_builder
 	{
 		template<typename VBT, typename IBT>
-		NODISCARD PxTriangleMesh* createMeshShape(triangle_mesh_descriptor<VBT, IBT> desc) { return nullptr; }
+		NODISCARD PxTriangleMesh* buildMesh(triangle_mesh_descriptor<VBT, IBT> desc) { return nullptr; }
+	};
+
+	struct px_convex_mesh_collider_builder
+	{
+		template<typename VBT>
+		NODISCARD PxConvexMesh* buildMesh(convex_mesh_descriptor<VBT> desc) { return nullptr; }
 	};
 
 	void enableShapeInContactTests(PxShape* shape) noexcept;
@@ -68,7 +90,7 @@ namespace openps
 		NODISCARD PxShape* getShape() const noexcept { return shape; }
 		void setShape(PxShape* newShape) noexcept { shape = newShape; }
 
-		void release();
+		virtual void release();
 
 		NODISCARD collider_type getType() const noexcept { return type; }
 
@@ -84,6 +106,7 @@ namespace openps
 		collider_type type = collider_type::None;
 
 		PxShape* shape = nullptr;
+		PxMaterial* material = nullptr;
 	};
 
 	struct box_collider : collider_base
@@ -165,8 +188,66 @@ namespace openps
 
 		bool createShape() override { return false; }
 
+		void release() override
+		{
+			PX_RELEASE(material)
+			PX_RELEASE(shape)
+			RELEASE_PTR(descriptor.vertexBuffer)
+			RELEASE_PTR(descriptor.indexBuffer)
+		}
+
 		triangle_mesh_descriptor<VBT, IBT> descriptor{};
 
 		float modelSize{};
+	};
+
+	template<typename VBT>
+	struct convex_mesh_collider : collider_base
+	{
+		convex_mesh_collider() = default;
+		convex_mesh_collider(float size, convex_mesh_descriptor<VBT> desc) noexcept : descriptor(desc), modelSize(size)
+		{
+			type = collider_type::ConvexMesh;
+		};
+
+		virtual ~convex_mesh_collider() {}
+
+		bool createShape() override { return false; }
+
+		void release() override
+		{
+			PX_RELEASE(material)
+			PX_RELEASE(shape)
+			RELEASE_PTR(descriptor.vertexBuffer)
+			RELEASE_PTR(descriptor.indexBuffer)
+		}
+
+		convex_mesh_descriptor<VBT> descriptor{};
+
+		float modelSize{};
+	};
+
+	struct plane_collider : collider_base
+	{
+		plane_collider() = default;
+		plane_collider(const PxVec3& pos, const PxVec3& norm = PxVec3(0.f, 1.f, 0.f)) noexcept : position(pos), normal(norm)
+		{
+			type = collider_type::Plane;
+		}
+
+		~plane_collider() {}
+
+		bool createShape() override;
+		void release() override 
+		{
+			PX_RELEASE(material)
+			PX_RELEASE(plane)
+			PX_RELEASE(shape)
+		}
+
+		PxVec3 position{};
+		PxVec3 normal{};
+
+		PxRigidStatic* plane = nullptr;
 	};
 };

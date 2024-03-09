@@ -65,12 +65,26 @@ namespace openps
 			scene->unlockWrite();
 		}
 
+		void addActor(PxRigidActor* actor)
+		{
+			scene->lockWrite();
+			scene->addActor(*actor);
+			scene->unlockWrite();
+		}
+
 		void removeActor(rigidbody* actor)
 		{
 			scene->lockWrite();
 			actors.erase(actor);
 			actorsMap.erase(actor->getRigidActor());
 			scene->removeActor(*actor->getRigidActor());
+			scene->unlockWrite();
+		}
+
+		void reomoveActor(PxRigidActor* actor)
+		{
+			scene->lockWrite();
+			scene->removeActor(*actor);
 			scene->unlockWrite();
 		}
 

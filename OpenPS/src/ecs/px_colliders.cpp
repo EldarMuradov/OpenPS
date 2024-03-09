@@ -1,6 +1,5 @@
 #include <pch.h>
-#include <ecs/px_colliders.h>
-#include <core/px_physics.h>
+#include <openps.h>
 
 #define DEFAULT_SDF_AND_RST 0.5f, 0.5f, 0.6f
 
@@ -85,6 +84,7 @@ void openps::disableShapeInSceneQueryTests(physx::PxShape* shape) noexcept
 void openps::collider_base::release()
 {
 	PX_RELEASE(shape);
+	PX_RELEASE(material)
 }
 
 openps::box_collider::~box_collider()
@@ -95,7 +95,7 @@ bool openps::box_collider::createShape()
 {
 	const auto physics = openps::physics_holder::physicsRef->getPhysicsImpl();
 
-	auto material = physics->createMaterial(DEFAULT_SDF_AND_RST);
+	material = physics->createMaterial(DEFAULT_SDF_AND_RST);
 	shape = physics->createShape(physx::PxBoxGeometry(x, y, z), *material);
 
 	enableShapeInSceneQueryTests(shape);
@@ -112,7 +112,7 @@ bool openps::sphere_collider::createShape()
 {
 	const auto physics = openps::physics_holder::physicsRef->getPhysicsImpl();
 
-	auto material = physics->createMaterial(DEFAULT_SDF_AND_RST);
+	material = physics->createMaterial(DEFAULT_SDF_AND_RST);
 	shape = physics->createShape(physx::PxSphereGeometry(radius), *material);
 
 	enableShapeInSceneQueryTests(shape);
@@ -129,7 +129,7 @@ bool openps::capsule_collider::createShape()
 {
 	const auto physics = openps::physics_holder::physicsRef->getPhysicsImpl();
 
-	auto material = physics->createMaterial(DEFAULT_SDF_AND_RST);
+	material = physics->createMaterial(DEFAULT_SDF_AND_RST);
 	shape = physics->createShape(physx::PxCapsuleGeometry(radius, height / 2.0f), *material);
 	
 	enableShapeInSceneQueryTests(shape);
@@ -145,4 +145,13 @@ openps::bounding_box_collider::~bounding_box_collider()
 bool openps::bounding_box_collider::createShape()
 {
 	return false;
+}
+
+bool openps::plane_collider::createShape()
+{
+	material = physics_holder::physicsRef->getPhysicsImpl()->createMaterial(0.5f, 0.5f, 0.6f);
+	plane = PxCreatePlane(*physics_holder::physicsRef->getPhysicsImpl(), PxPlane(position, normal), *material);
+	physics_holder::physicsRef->addActor(plane);
+
+	return true;
 }
