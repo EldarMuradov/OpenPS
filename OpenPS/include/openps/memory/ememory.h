@@ -1,6 +1,6 @@
 #pragma once
 
-NODISCARD static uint32_t alignTo(uint32_t currentOffset, uint32_t alignment)
+NODISCARD inline uint32_t alignTo(uint32_t currentOffset, uint32_t alignment)
 {
 	uint32_t mask = alignment - 1;
 	uint32_t misalignment = currentOffset & mask;
@@ -8,7 +8,7 @@ NODISCARD static uint32_t alignTo(uint32_t currentOffset, uint32_t alignment)
 	return currentOffset + adjustment;
 }
 
-NODISCARD static uint64_t alignTo(uint64_t currentOffset, uint64_t alignment)
+NODISCARD inline uint64_t alignTo(uint64_t currentOffset, uint64_t alignment)
 {
 	uint64_t mask = alignment - 1;
 	uint64_t misalignment = currentOffset & mask;
@@ -16,7 +16,7 @@ NODISCARD static uint64_t alignTo(uint64_t currentOffset, uint64_t alignment)
 	return currentOffset + adjustment;
 }
 
-NODISCARD static void* alignTo(void* currentAddress, uint64_t alignment)
+NODISCARD inline void* alignTo(void* currentAddress, uint64_t alignment)
 {
 	uint64_t mask = alignment - 1;
 	uint64_t misalignment = (uint64_t)(currentAddress)&mask;
@@ -24,14 +24,14 @@ NODISCARD static void* alignTo(void* currentAddress, uint64_t alignment)
 	return (uint8_t*)currentAddress + adjustment;
 }
 
-static bool rangesOverlap(uint64_t fromA, uint64_t toA, uint64_t fromB, uint64_t toB)
+inline bool rangesOverlap(uint64_t fromA, uint64_t toA, uint64_t fromB, uint64_t toB)
 {
 	if (toA <= fromB || fromA >= toA)
 		return false;
 	return true;
 }
 
-static bool rangesOverlap(void* fromA, void* toA, void* fromB, void* toB)
+inline bool rangesOverlap(void* fromA, void* toA, void* fromB, void* toB)
 {
 	if (toA <= fromB || fromA >= toB)
 		return false;
