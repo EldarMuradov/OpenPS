@@ -139,7 +139,6 @@ namespace openps
 		sceneDesc.flags |= PxSceneFlag::eREQUIRE_RW_LOCK;
 		cudaContextManager = PxCreateCudaContextManager(*foundation, cudaContextManagerDesc, &profilerCallback);
 		sceneDesc.cudaContextManager = cudaContextManager;
-		sceneDesc.cudaContextManager = cudaContextManager;
 		sceneDesc.frictionType = PxFrictionType::eTWO_DIRECTIONAL;
 		sceneDesc.flags |= physx::PxSceneFlag::eENABLE_ACTIVE_ACTORS;
 		sceneDesc.flags |= PxSceneFlag::eENABLE_PCM;
