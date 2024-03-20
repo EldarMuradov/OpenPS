@@ -5,16 +5,10 @@ namespace openps
 {
 	std::mutex sync;
 
-	physics* physics_holder::physicsRef;
-
 	static physx::PxFilterFlags contactReportFilterShader(
-		PxFilterObjectAttributes attributes0,
-		PxFilterData filterData0,
-		PxFilterObjectAttributes attributes1,
-		PxFilterData filterData1,
-		PxPairFlags& pairFlags,
-		const void* constantBlock,
-		PxU32 constantBlockSize)
+		physx::PxFilterObjectAttributes attributes0, physx::PxFilterData filterData0,
+		physx::PxFilterObjectAttributes attributes1, physx::PxFilterData filterData1,
+		physx::PxPairFlags& pairFlags, const void* constantBlock, physx::PxU32 constantBlockSize) noexcept
 	{
 		UNUSED(constantBlockSize);
 		UNUSED(constantBlock);
@@ -25,18 +19,20 @@ namespace openps
 			return physx::PxFilterFlag::eDEFAULT;
 		}
 
-		pairFlags |= PxPairFlag::eDETECT_CCD_CONTACT;
+		if (physx::PxFilterObjectIsKinematic(attributes0) || physx::PxFilterObjectIsKinematic(attributes1))
+			return physx::PxFilterFlag::eKILL;
 
-		pairFlags = physx::PxPairFlag::eNOTIFY_CONTACT_POINTS | physx::PxPairFlag::eDETECT_DISCRETE_CONTACT;
+		pairFlags = physx::PxPairFlag::eCONTACT_DEFAULT;
+		pairFlags |= physx::PxPairFlag::eDETECT_CCD_CONTACT;
+		pairFlags |= physx::PxPairFlag::eNOTIFY_TOUCH_FOUND;
+		pairFlags |= physx::PxPairFlag::eNOTIFY_TOUCH_LOST;
+		pairFlags |= physx::PxPairFlag::eNOTIFY_TOUCH_PERSISTS;
+		pairFlags |= physx::PxPairFlag::ePOST_SOLVER_VELOCITY;
+		pairFlags |= physx::PxPairFlag::eNOTIFY_CONTACT_POINTS;
+		pairFlags |= physx::PxPairFlag::eSOLVE_CONTACT;
+		pairFlags |= physx::PxPairFlag::eDETECT_DISCRETE_CONTACT;
 
-		if ((filterData0.word0 & filterData1.word1) && (filterData1.word0 & filterData0.word1))
-			pairFlags |= physx::PxPairFlag::eNOTIFY_TOUCH_FOUND;
-
-		pairFlags = physx::PxPairFlag::eSOLVE_CONTACT | physx::PxPairFlag::eDETECT_DISCRETE_CONTACT
-			| physx::PxPairFlag::eNOTIFY_TOUCH_FOUND
-			| physx::PxPairFlag::eNOTIFY_TOUCH_PERSISTS
-			| physx::PxPairFlag::eNOTIFY_CONTACT_POINTS | PxPairFlag::eMODIFY_CONTACTS;
-		return physx::PxFilterFlag::eNOTIFY;
+		return physx::PxFilterFlag::eDEFAULT;
 	}
 
 	physics::physics()
@@ -70,13 +66,7 @@ namespace openps
 
 		void* scratchMemBlock = allocator.allocate(MB(16), 16U, true);
 
-#if PX_GPU_BROAD_PHASE
 		scene->simulate(stepSize, NULL, scratchMemBlock, MB(16));
-#else
-		scene->collide(std::max(dt, stepSize), NULL, scratchMemBlock, MB(16));
-		scene->fetchCollision(true);
-		scene->advance();
-#endif
 
 		scene->fetchResults(true);
 
@@ -122,7 +112,7 @@ namespace openps
 		sceneDesc.filterShader = contactReportFilterShader;
 		sceneDesc.kineKineFilteringMode = physx::PxPairFilteringMode::eKEEP;
 		sceneDesc.staticKineFilteringMode = physx::PxPairFilteringMode::eKEEP;
-		sceneDesc.simulationEventCallback = &collisionCallback;
+		sceneDesc.simulationEventCallback = &simulationCallback;
 
 		PxCudaContextManagerDesc cudaContextManagerDesc;
 

@@ -10,10 +10,7 @@ openps::rigidbody::rigidbody(uint32_t hndl, rigidbody_type tp) noexcept : handle
 
 physx::PxRigidActor* openps::createRigidbodyActor(rigidbody* rb, collider_base* collider, const PxTransform& trs)
 {
-	if (!rb)
-		return nullptr;
-
-	if (!collider)
+	if (!rb || !collider)
 		return nullptr;
 
 	const auto physics = openps::physics_holder::physicsRef->getPhysicsImpl();
@@ -42,13 +39,9 @@ physx::PxRigidActor* openps::createRigidbodyActor(rigidbody* rb, collider_base* 
 		PxRigidDynamic* actor = physics->createRigidDynamic(trs);
 		actor->setRigidBodyFlag(PxRigidBodyFlag::eENABLE_POSE_INTEGRATION_PREVIEW, true);
 		actor->setRigidBodyFlag(PxRigidBodyFlag::eRETAIN_ACCELERATIONS, true);
-
-#if PX_GPU_BROAD_PHASE
-		actor->setRigidBodyFlag(PxRigidBodyFlag::eENABLE_SPECULATIVE_CCD, true);
-#else
 		actor->setRigidBodyFlag(PxRigidBodyFlag::eENABLE_CCD, true);
+		actor->setRigidBodyFlag(PxRigidBodyFlag::eENABLE_SPECULATIVE_CCD, true);
 		actor->setRigidBodyFlag(PxRigidBodyFlag::eENABLE_CCD_FRICTION, true);
-#endif
 
 		collider->createShape();
 		uint32_t* h = new uint32_t[1];

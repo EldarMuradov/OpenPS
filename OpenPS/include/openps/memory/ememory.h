@@ -26,19 +26,15 @@ NODISCARD inline void* alignTo(void* currentAddress, uint64_t alignment)
 
 inline bool rangesOverlap(uint64_t fromA, uint64_t toA, uint64_t fromB, uint64_t toB)
 {
-	if (toA <= fromB || fromA >= toA)
-		return false;
-	return true;
+	return !(toA <= fromB || fromA >= toA);
 }
 
 inline bool rangesOverlap(void* fromA, void* toA, void* fromB, void* toB)
 {
-	if (toA <= fromB || fromA >= toB)
-		return false;
-	return true;
+	return !(toA <= fromB || fromA >= toB);
 }
 
-namespace openps 
+namespace openps
 {
 	struct memory_marker
 	{
@@ -81,22 +77,36 @@ namespace openps
 			return (T*)allocate(sizeof(T) * count, alignof(T), clearToZero);
 		}
 
-		NODISCARD void* getCurrent(uint64_t alignment = 1);
+		NODISCARD void* getCurrent(uint64_t alignment = 1)  const noexcept
+		{
+			memory + alignTo(current, alignment);
+		}
 
 		template <typename T>
-		NODISCARD T* getCurrent()
+		NODISCARD T* getCurrent() const noexcept
 		{
 			return (T*)getCurrent(alignof(T));
 		}
 
-		void setCurrentTo(void* ptr);
+		void setCurrentTo(void* ptr) noexcept
+		{
+			current = (uint8_t*)ptr - memory;
+			sizeLeftCurrent = committedMemory - current;
+			sizeLeftTotal = reserveSize - current;
+		}
 
 		void reset(bool freeMemory = false);
 
-		NODISCARD memory_marker getMarker();
-		void resetToMarker(memory_marker marker);
+		NODISCARD memory_marker getMarker() const noexcept { return { current }; }
 
-		NODISCARD uint8_t* base() { return memory; }
+		void resetToMarker(memory_marker marker) noexcept
+		{
+			current = marker.before;
+			sizeLeftCurrent = committedMemory - current;
+			sizeLeftTotal = reserveSize - current;
+		}
+
+		NODISCARD uint8_t* base() const noexcept { return memory; }
 
 	protected:
 		void ensureFreeSizeInternal(uint64_t size);

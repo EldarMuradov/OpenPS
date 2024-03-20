@@ -159,6 +159,7 @@
   <ItemGroup>
     <ClCompile Include="example.cpp" />
     <ClCompile Include="src\core\px_aggregates.cpp" />
+    <ClCompile Include="src\core\px_gjk_support.cpp" />
     <ClCompile Include="src\core\px_logger.cpp" />
     <ClCompile Include="src\core\px_physics.cpp" />
     <ClCompile Include="src\core\px_structs.cpp" />
@@ -171,6 +172,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\openps\core\px_aggregates.h" />
+    <ClInclude Include="include\openps\core\px_gjk_support.h" />
     <ClInclude Include="include\openps\core\px_logger.h" />
     <ClInclude Include="include\openps\core\px_physics.h" />
     <ClInclude Include="include\openps\core\px_structs.h" />

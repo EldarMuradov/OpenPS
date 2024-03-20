@@ -1,27 +1,30 @@
 #pragma once
 #include <openps.h>
 
-struct px_aggregate
+namespace openps
 {
-	px_aggregate() = default;
-
-	px_aggregate(uint8_t nb, bool sc = true) noexcept : nbActors(nb), selfCollisions(sc)
+	struct px_aggregate
 	{
-		aggregate = openps::physics_holder::physicsRef->getPhysicsImpl()->createAggregate(nbActors, selfCollisions, physx::PxAggregateFilterHint());
-		openps::physics_holder::physicsRef->addAggregate(aggregate);
-	}
+		px_aggregate() = default;
 
-	~px_aggregate() { openps::physics_holder::physicsRef->removeAggregate(aggregate); PX_RELEASE(aggregate) }
+		px_aggregate(uint8_t nb, bool sc = true) noexcept : nbActors(nb), selfCollisions(sc)
+		{
+			aggregate = openps::physics_holder::physicsRef->getPhysicsImpl()->createAggregate(nbActors, selfCollisions, physx::PxAggregateFilterHint());
+			openps::physics_holder::physicsRef->addAggregate(aggregate);
+		}
 
-	void addActor(physx::PxActor* actor) noexcept { aggregate->addActor(*actor); }
-	void removeActor(physx::PxActor* actor) noexcept { aggregate->removeActor(*actor); }
+		~px_aggregate() { openps::physics_holder::physicsRef->removeAggregate(aggregate); PX_RELEASE(aggregate) }
 
-	NODISCARD uint8_t getNbActors() const noexcept { return nbActors; }
-	NODISCARD bool isSelfCollision() const noexcept { return selfCollisions; }
+		void addActor(physx::PxActor* actor) noexcept { aggregate->addActor(*actor); }
+		void removeActor(physx::PxActor* actor) noexcept { aggregate->removeActor(*actor); }
 
-private:
-	physx::PxAggregate* aggregate = nullptr;
+		NODISCARD uint8_t getNbActors() const noexcept { return nbActors; }
+		NODISCARD bool isSelfCollision() const noexcept { return selfCollisions; }
 
-	uint8_t nbActors = 0;
-	bool selfCollisions = true;
-};
+	private:
+		physx::PxAggregate* aggregate = nullptr;
+
+		uint8_t nbActors = 0;
+		bool selfCollisions = true;
+	};
+}

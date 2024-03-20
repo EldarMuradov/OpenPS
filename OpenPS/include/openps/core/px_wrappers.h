@@ -73,12 +73,13 @@ namespace openps
 	{
 		void* zoneStart(const char* eventName, bool detached, uint64_t contextId) override
 		{
-
+			// TODO: log start event
 			return nullptr;
 		}
 
 		void zoneEnd(void* profilerData, const char* eventName, bool detached, uint64_t contextId) override
 		{
+			// TODO: log end event
 		}
 	};
 
@@ -93,7 +94,7 @@ namespace openps
 		}
 	};
 
-	struct collision_contact_callback : PxSimulationEventCallback
+	struct simulation_event_callback : PxSimulationEventCallback
 	{
 		void onConstraintBreak(physx::PxConstraintInfo* constraints, physx::PxU32 count) override { /*std::cout << "onConstraintBreak\n";*/ }
 		void onWake(physx::PxActor** actors, physx::PxU32 count) override { /*std::cout << "onWake\n";*/ }

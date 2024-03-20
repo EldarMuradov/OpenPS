@@ -6,13 +6,13 @@ using log_error_func_ptr = void(*)(const char*);
 
 namespace openps
 {
-	static void default_log_message(const char* message) { std::cout << "[OpenPS] " << message << "\n"; }
-	static void default_log_error(const char* message) { std::cerr << "[OpenPS] Error " << message << "\n"; }
+	inline void default_log_message(const char* message) { std::cout << "[OpenPS] " << message << "\n"; }
+	inline void default_log_error(const char* message) { std::cerr << "[OpenPS] Error " << message << "\n"; }
 
 	class logger
 	{
-		static log_message_func_ptr logMessageFunc;
-		static log_error_func_ptr logErrorFunc;
+		static inline log_message_func_ptr logMessageFunc;
+		static inline log_error_func_ptr logErrorFunc;
 
 		friend struct physics;
 

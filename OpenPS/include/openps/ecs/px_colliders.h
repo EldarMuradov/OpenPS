@@ -66,8 +66,12 @@ namespace openps
 		NODISCARD PxConvexMesh* buildMesh(convex_mesh_descriptor<VBT> desc) { return nullptr; }
 	};
 
+	void enableShapeVisualization(PxShape* shape) noexcept;
+	void disableShapeVisualization(PxShape* shape) noexcept;
+
 	void enableShapeInContactTests(PxShape* shape) noexcept;
 	void disableShapeInContactTests(PxShape* shape) noexcept;
+
 	void enableShapeInSceneQueryTests(PxShape* shape) noexcept;
 	void disableShapeInSceneQueryTests(PxShape* shape) noexcept;
 

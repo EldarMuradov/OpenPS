@@ -2,7 +2,7 @@
 #include <core/px_wrappers.h>
 #include "core/px_physics.h"
 
-void openps::collision_contact_callback::onContact(const PxContactPairHeader& pairHeader, const PxContactPair* pairs, PxU32 nbPairs)
+void openps::simulation_event_callback::onContact(const PxContactPairHeader& pairHeader, const PxContactPair* pairs, PxU32 nbPairs)
 {
 	UNUSED(pairHeader);
 
@@ -36,7 +36,7 @@ void openps::collision_contact_callback::onContact(const PxContactPairHeader& pa
 			auto rb1 = openps::physics_holder::physicsRef->actorsMap[actor1];
 			auto rb2 = openps::physics_holder::physicsRef->actorsMap[actor2];
 
-			if (rb1 && rb2)
+			if (rb1 && rb2 && cp.flags & PxContactPairFlag::eACTOR_PAIR_HAS_FIRST_TOUCH)
 			{
 				rb1->onCollisionEnter(rb2);
 				rb2->onCollisionEnter(rb1);

@@ -18,7 +18,6 @@ namespace openps
 		log_error_func_ptr logErrorFunc;
 	};
 
-
 	struct collision_handling_data
 	{
 		uint32_t id1;
@@ -46,12 +45,12 @@ namespace openps
 
 		void addAggregate(PxAggregate* aggregate) noexcept
 		{
-		
+			scene->addAggregate(*aggregate);
 		}
 
 		void removeAggregate(PxAggregate* aggregate) noexcept
 		{
-		
+			scene->removeAggregate(*aggregate);
 		}
 
 		void addActor(rigidbody* actor, PxRigidActor* ractor, bool addToScene = true)
@@ -241,7 +240,7 @@ namespace openps
 
 		query_filter queryFilter;
 		simulation_filter_callback simulationFilterCallback;
-		collision_contact_callback collisionCallback;
+		simulation_event_callback simulationCallback;
 		ccd_contact_modification contactModification;
 
 		eallocator allocator;
@@ -251,6 +250,6 @@ namespace openps
 
 	struct physics_holder 
 	{
-		static physics* physicsRef;
+		static inline physics* physicsRef = nullptr;
 	};
 }

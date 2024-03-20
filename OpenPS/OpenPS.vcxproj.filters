@@ -66,6 +66,9 @@
     <ClCompile Include="src\core\px_aggregates.cpp">
       <Filter>sources\core</Filter>
     </ClCompile>
+    <ClCompile Include="src\core\px_gjk_support.cpp">
+      <Filter>sources\core</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\pch.h">
@@ -96,6 +99,9 @@
       <Filter>headers\core</Filter>
     </ClInclude>
     <ClInclude Include="include\openps\core\px_aggregates.h">
+      <Filter>headers\core</Filter>
+    </ClInclude>
+    <ClInclude Include="include\openps\core\px_gjk_support.h">
       <Filter>headers\core</Filter>
     </ClInclude>
   </ItemGroup>

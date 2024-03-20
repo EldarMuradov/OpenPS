@@ -61,6 +61,16 @@ static void createMeshFromBoundingBox(const openps::bounding_box& box, std::vect
 		indices.push_back(boxIndices[i]);
 }
 
+void openps::enableShapeVisualization(PxShape* shape) noexcept
+{
+	shape->setFlag(PxShapeFlag::eVISUALIZATION, true);
+}
+
+void openps::disableShapeVisualization(PxShape* shape) noexcept
+{
+	shape->setFlag(PxShapeFlag::eVISUALIZATION, false);
+}
+
 void openps::enableShapeInContactTests(physx::PxShape* shape) noexcept
 {
 	shape->setFlag(PxShapeFlag::eSIMULATION_SHAPE, true);

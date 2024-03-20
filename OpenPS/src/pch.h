@@ -100,7 +100,7 @@ NODISCARD constexpr inline auto max(T a, T b)
 #define M_TAU 6.28318530718f
 #define INV_TAU 0.159154943091895335f
 
-#define EPSILON 1e-6f
+constexpr auto EPSILON = 1e-6f;
 
 #define deg2rad(deg) ((deg) * M_PI_OVER_180)
 #define rad2deg(rad) ((rad) * M_180_OVER_PI)

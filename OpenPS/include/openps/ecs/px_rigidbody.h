@@ -55,6 +55,7 @@ namespace openps
 
 		void onCollisionExit(rigidbody* collision) const
 		{
+			openps::logger::log_message("collision enter");
 			if (onCollisionExitFunc)
 				onCollisionExitFunc(collision);
 		}
@@ -67,7 +68,7 @@ namespace openps
 
 		void onCollisionEnter(rigidbody* collision) const
 		{
-			openps::logger::log_message("collision");
+			openps::logger::log_message("collision enter");
 			if (onCollisionEnterFunc)
 				onCollisionEnterFunc(collision);
 		}
