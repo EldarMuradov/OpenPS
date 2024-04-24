@@ -16,9 +16,6 @@
     <Filter Include="headers\memory">
       <UniqueIdentifier>{68199963-98a8-43e2-94ac-3e1d00f2cc21}</UniqueIdentifier>
     </Filter>
-    <Filter Include="sources\memory">
-      <UniqueIdentifier>{79d83a32-0d07-4903-95b7-bc2556846974}</UniqueIdentifier>
-    </Filter>
     <Filter Include="headers\core">
       <UniqueIdentifier>{b1c76fbb-e4b6-4010-be48-248b0d802ae2}</UniqueIdentifier>
     </Filter>
@@ -36,44 +33,14 @@
     <ClCompile Include="example.cpp">
       <Filter>sources</Filter>
     </ClCompile>
-    <ClCompile Include="src\pch.cpp">
-      <Filter>sources</Filter>
-    </ClCompile>
-    <ClCompile Include="src\memory\ememory.cpp">
-      <Filter>sources\memory</Filter>
-    </ClCompile>
     <ClCompile Include="src\core\px_wrappers.cpp">
-      <Filter>sources\core</Filter>
-    </ClCompile>
-    <ClCompile Include="src\core\px_structs.cpp">
-      <Filter>sources\core</Filter>
-    </ClCompile>
-    <ClCompile Include="src\ecs\px_rigidbody.cpp">
-      <Filter>sources\ecs</Filter>
-    </ClCompile>
-    <ClCompile Include="src\core\px_physics.cpp">
-      <Filter>sources\core</Filter>
-    </ClCompile>
-    <ClCompile Include="src\core\px_logger.cpp">
       <Filter>sources\core</Filter>
     </ClCompile>
     <ClCompile Include="src\ecs\px_colliders.cpp">
       <Filter>sources\ecs</Filter>
     </ClCompile>
-    <ClCompile Include="src\core\px_tasks.cpp">
-      <Filter>sources\core</Filter>
-    </ClCompile>
-    <ClCompile Include="src\core\px_aggregates.cpp">
-      <Filter>sources\core</Filter>
-    </ClCompile>
-    <ClCompile Include="src\core\px_gjk_support.cpp">
-      <Filter>sources\core</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\pch.h">
-      <Filter>headers</Filter>
-    </ClInclude>
     <ClInclude Include="include\openps\core\px_logger.h">
       <Filter>headers\core</Filter>
     </ClInclude>
@@ -103,6 +70,12 @@
     </ClInclude>
     <ClInclude Include="include\openps\core\px_gjk_support.h">
       <Filter>headers\core</Filter>
+    </ClInclude>
+    <ClInclude Include="include\openps\openps.h">
+      <Filter>headers</Filter>
+    </ClInclude>
+    <ClInclude Include="include\openps\openps_decl.h">
+      <Filter>headers</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

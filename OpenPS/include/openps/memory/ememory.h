@@ -1,5 +1,7 @@
 #pragma once
 
+#include <openps_decl.h>
+
 NODISCARD inline uint32_t alignTo(uint32_t currentOffset, uint32_t alignment)
 {
 	uint32_t mask = alignment - 1;
@@ -65,11 +67,59 @@ namespace openps
 		eallocator(eallocator&&) = default;
 		~eallocator() { reset(true); }
 
-		void initialize(uint64_t minimumBlockSize = 0, uint64_t reserveSize = GB(8));
+		void initialize(uint64_t minimumBlockSize = 0, uint64_t reserveSize = GB(8))
+		{
+			reset(true);
 
-		void ensureFreeSize(uint64_t size);
+			memory = (uint8_t*)VirtualAlloc(0, reserveSize, MEM_RESERVE, PAGE_READWRITE);
 
-		NODISCARD void* allocate(uint64_t size, uint64_t alignment = 1, bool clearToZero = false);
+			SYSTEM_INFO systemInfo;
+			GetSystemInfo(&systemInfo);
+
+			pageSize = systemInfo.dwPageSize;
+			sizeLeftTotal = reserveSize;
+			this->minimumBlockSize = minimumBlockSize;
+			this->reserveSize = reserveSize;
+		}
+
+		void ensureFreeSize(uint64_t size)
+		{
+			mutex.lock();
+			ensureFreeSizeInternal(size);
+			mutex.unlock();
+		}
+
+		NODISCARD void* allocate(uint64_t size, uint64_t alignment = 1, bool clearToZero = false)
+		{
+			if (size == 0)
+				return 0;
+
+			mutex.lock();
+
+			uint64_t mask = alignment - 1;
+			uint64_t misalignment = current & mask;
+			uint64_t adjustment = (misalignment == 0) ? 0 : (alignment - misalignment);
+			current += adjustment;
+
+			sizeLeftCurrent -= adjustment;
+			sizeLeftTotal -= adjustment;
+
+			ASSERT(sizeLeftTotal >= size);
+
+			ensureFreeSizeInternal(size);
+
+			uint8_t* result = memory + current;
+			current += size;
+			sizeLeftCurrent -= size;
+			sizeLeftTotal -= size;
+
+			mutex.unlock();
+
+			if (clearToZero)
+				memset(result, 0, size);
+
+			return result;
+		}
 
 		template <typename T>
 		NODISCARD T* allocate(uint32_t count = 1, bool clearToZero = false)
@@ -95,7 +145,17 @@ namespace openps
 			sizeLeftTotal = reserveSize - current;
 		}
 
-		void reset(bool freeMemory = false);
+		void reset(bool freeMemory = false)
+		{
+			if (memory && freeMemory)
+			{
+				VirtualFree(memory, 0, MEM_RELEASE);
+				memory = 0;
+				committedMemory = 0;
+			}
+
+			resetToMarker(memory_marker{ 0 });
+		}
 
 		NODISCARD memory_marker getMarker() const noexcept { return { current }; }
 
@@ -109,6 +169,18 @@ namespace openps
 		NODISCARD uint8_t* base() const noexcept { return memory; }
 
 	protected:
-		void ensureFreeSizeInternal(uint64_t size);
+		void ensureFreeSizeInternal(uint64_t size)
+		{
+			if (sizeLeftCurrent < size)
+			{
+				uint64_t allocationSize = max(size, minimumBlockSize);
+				allocationSize = pageSize * bucketize(allocationSize, pageSize);
+				VirtualAlloc(memory + committedMemory, allocationSize, MEM_COMMIT, PAGE_READWRITE);
+
+				sizeLeftTotal += allocationSize;
+				sizeLeftCurrent += allocationSize;
+				committedMemory += allocationSize;
+			}
+		}
 	};
 }

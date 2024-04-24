@@ -105,13 +105,23 @@ constexpr auto EPSILON = 1e-6f;
 #define deg2rad(deg) ((deg) * M_PI_OVER_180)
 #define rad2deg(rad) ((rad) * M_180_OVER_PI)
 
-#define KB(n) (1024ull * (n))
-#define MB(n) (1024ull * KB(n))
-#define GB(n) (1024ull * MB(n))
+template<typename T>
+constexpr auto KB(T n) { return (1024ull * (n)); }
 
-#define BYTE_TO_KB(b) ((b) / 1024)
-#define BYTE_TO_MB(b) ((b) / (1024 * 1024))
-#define BYTE_TO_GB(b) ((b) / (1024 * 1024))
+template<typename T>
+constexpr auto MB(T n) { return (1024ull * KB(n)); }
+
+template<typename T>
+constexpr auto GB(T n) { return (1024ull * MB(n)); }
+
+template<typename T>
+constexpr auto BYTE_TO_KB(T b) { return ((b) / 1024); }
+
+template<typename T>
+constexpr auto BYTE_TO_MB(T b) { return ((b) / (1024 * 1024)); }
+
+template<typename T>
+constexpr auto BYTE_TO_GB(T b) { return ((b) / (1024 * 1024)); }
 
 NODISCARD static constexpr float lerp(float l, float u, float t) { return l + t * (u - l); }
 NODISCARD static constexpr float inverseLerp(float l, float u, float v) { return (v - l) / (u - l); }
@@ -156,7 +166,7 @@ filterData.data.word2 = hitTriggers ? 1 : 0
 			hitInfo = hit.shape ? static_cast<uint32_t*>(hit.shape->userData) : nullptr; \
 		}
 
-namespace physx
+	namespace physx
 {
 	NODISCARD static PxVec2 min(const PxVec2& a, const PxVec2& b) noexcept { return PxVec2(std::min(a.x, b.x), std::min(a.y, b.y)); }
 	NODISCARD static PxVec3 min(const PxVec3& a, const PxVec3& b) noexcept { return PxVec3(std::min(a.x, b.x), std::min(a.y, b.y), std::min(a.z, b.z)); }

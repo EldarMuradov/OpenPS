@@ -1,6 +1,14 @@
 #pragma once
 
+#include <sstream>
+
+#include <openps_decl.h>
+
 #include <core/px_logger.h>
+#include <core/px_structs.h>
+
+#include <ecs/px_rigidbody.h>
+#include <ecs/px_colliders.h>
 
 namespace openps
 {
@@ -88,28 +96,96 @@ namespace openps
 		void reportError(PxErrorCode::Enum code, const char* message, const char* file, int line) override
 		{
 			if (message)
-				logger::log_error(message);
+			{
+				std::stringstream stream{};
+				stream << message << " in file: " << file << " in line: " << line;
+				logger::log_error(stream.str().c_str());
+			}
 			else
 				logger::log_error("PhysX Error!");
 		}
 	};
 
+	struct contact_point
+	{
+		PxVec3 Point;
+
+		PxVec3 normal;
+
+		float separation;
+	};
+
+	struct collision
+	{
+		rigidbody* thisActor = nullptr;
+
+		rigidbody* otherActor = nullptr;
+
+		PxVec3 impulse;
+
+		PxVec3 thisVelocity;
+
+		PxVec3 otherVelocity;
+
+		int32_t contactsCount;
+
+		contact_point contacts[PX_CONTACT_BUFFER_SIZE];
+
+		PxVec3 getRelativeVelocity() const
+		{
+			return thisVelocity - otherVelocity;
+		}
+
+		void swapObjects()
+		{
+			if (!thisActor || !otherActor)
+				return;
+			::std::swap(thisActor, otherActor);
+			::std::swap(thisVelocity, otherVelocity);
+		}
+	};
+
 	struct simulation_event_callback : PxSimulationEventCallback
 	{
+		simulation_event_callback() = default;
+
+		typedef ::std::pair<rigidbody*, rigidbody*> colliders_pair;
+
+		void clear() noexcept
+		{
+			newCollisions.clear();
+			removedCollisions.clear();
+			kinematicsToRemoveFlag.clear();
+
+			newTriggerPairs.clear();
+			lostTriggerPairs.clear();
+		}
+
+		void sendCollisionEvents();
+
+		void sendTriggerEvents();
+
+		void onColliderRemoved(rigidbody* collider);
+
 		void onConstraintBreak(physx::PxConstraintInfo* constraints, physx::PxU32 count) override { /*std::cout << "onConstraintBreak\n";*/ }
 		void onWake(physx::PxActor** actors, physx::PxU32 count) override { /*std::cout << "onWake\n";*/ }
 		void onSleep(physx::PxActor** actors, physx::PxU32 count) override { /*std::cout << "onSleep\n";*/ }
 		void onTrigger(physx::PxTriggerPair* pairs, physx::PxU32 count) override { /*std::cout << "onTrigger\n";*/ }
 		void onAdvance(const physx::PxRigidBody* const* bodyBuffer, const physx::PxTransform* poseBuffer, const physx::PxU32 count) override { /*std::cout << "onAdvance\n";*/ }
 		void onContact(const PxContactPairHeader& pairHeader, const PxContactPair* pairs, PxU32 nbPairs) override;
+	
+		PxArray<collision> newCollisions;
+
+		PxArray<rigidbody*> kinematicsToRemoveFlag;
+
+		PxArray<collision> removedCollisions;
+
+		PxArray<colliders_pair> newTriggerPairs;
+
+		PxArray<colliders_pair> lostTriggerPairs;
 	};
 
 	PxTriangleMesh* createTriangleMesh(PxTriangleMeshDesc desc);
-
-	struct ccd_contact_modification : PxCCDContactModifyCallback
-	{
-		void onCCDContactModify(PxContactModifyPair* const pairs, PxU32 count);
-	};
 
 	template<typename HitType>
 	class DynamicHitBuffer : public PxHitCallback<HitType>
@@ -178,4 +254,6 @@ namespace openps
 			}
 		}
 	};
+
+	PxRigidActor* createRigidbodyActor(rigidbody* rb, collider_base* collider, const PxTransform& trs);
 }

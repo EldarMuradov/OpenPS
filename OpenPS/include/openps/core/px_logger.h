@@ -1,4 +1,5 @@
 #pragma once
+
 #include <iostream>
 
 using log_message_func_ptr = void(*)(const char*);

@@ -1,6 +1,10 @@
 #pragma once
 
+#include <openps_decl.h>
+
 #include <core/px_logger.h>
+
+#include <ecs/px_colliders.h>
 
 namespace openps
 {
@@ -10,6 +14,10 @@ namespace openps
 	using on_collision_enter_rb_func_ptr = void(*)(rigidbody*);
 	using on_collision_exit_rb_func_ptr = void(*)(rigidbody*);
 	using on_collision_stay_rb_func_ptr = void(*)(rigidbody*);
+
+	using on_trigger_enter_rb_func_ptr = void(*)(rigidbody*);
+	using on_trigger_exit_rb_func_ptr = void(*)(rigidbody*);
+	using on_trigger_stay_rb_func_ptr = void(*)(rigidbody*);
 
 	enum class rigidbody_type : uint8_t
 	{
@@ -28,12 +36,10 @@ namespace openps
 
 	using namespace physx;
 
-	PxRigidActor* createRigidbodyActor(rigidbody* rb, collider_base* collider, const PxTransform& trs);
-
 	struct rigidbody
 	{
 		rigidbody() = default;
-		rigidbody(uint32_t hndl, rigidbody_type tp) noexcept;
+		rigidbody(uint32_t hndl, rigidbody_type tp) noexcept : handle(hndl), type(tp) { }
 
 		NODISCARD const PxVec3 getPosition() const noexcept { return actor->getGlobalPose().p; }
 		void setPosition(const PxVec3& pos) noexcept { actor->setGlobalPose(PxTransform(pos, getRotation())); }
@@ -48,7 +54,7 @@ namespace openps
 		NODISCARD PxRigidActor* getRigidActor() const noexcept { return actor; }
 
 		void setMass(float newMass) noexcept
-		{ 
+		{
 			mass = newMass;
 			actor->is<PxRigidDynamic>()->setMass(mass);
 		}
@@ -73,9 +79,33 @@ namespace openps
 				onCollisionEnterFunc(collision);
 		}
 
+		void onTriggerExit(rigidbody* trigger) const
+		{
+			openps::logger::log_message("trigger exit");
+			if (onTriggerExitFunc)
+				onTriggerExitFunc(trigger);
+		}
+
+		void onTriggerStay(rigidbody* trigger) const
+		{
+			if (onTriggerStayFunc)
+				onTriggerStayFunc(trigger);
+		}
+
+		void onTriggerEnter(rigidbody* trigger) const
+		{
+			openps::logger::log_message("trigger exit");
+			if (onTriggerEnterFunc)
+				onTriggerEnterFunc(trigger);
+		}
+
 		on_collision_enter_rb_func_ptr onCollisionEnterFunc = nullptr;
 		on_collision_exit_rb_func_ptr onCollisionExitFunc = nullptr;
 		on_collision_stay_rb_func_ptr onCollisionStayFunc = nullptr;
+
+		on_trigger_enter_rb_func_ptr onTriggerEnterFunc = nullptr;
+		on_trigger_exit_rb_func_ptr onTriggerExitFunc = nullptr;
+		on_trigger_stay_rb_func_ptr onTriggerStayFunc = nullptr;
 
 		uint32_t handle{};
 

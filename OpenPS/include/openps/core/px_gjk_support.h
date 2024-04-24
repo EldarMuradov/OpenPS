@@ -1,4 +1,7 @@
 #pragma once
+
+#include <openps_decl.h>
+
 #include <extensions/PxGjkQueryExt.h>
 
 namespace openps

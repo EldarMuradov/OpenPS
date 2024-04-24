@@ -1,5 +1,6 @@
 #pragma once
-#include <openps.h>
+
+#include <core/px_physics.h>
 
 namespace openps
 {

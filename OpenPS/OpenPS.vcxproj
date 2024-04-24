@@ -23,7 +23,7 @@
     <Keyword>Win32Proj</Keyword>
     <ProjectGuid>{b9cc4d26-5424-43e9-a827-c9e1c86b9608}</ProjectGuid>
     <RootNamespace>OpenPS</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.22621.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -116,8 +116,9 @@
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <PrecompiledHeader>Create</PrecompiledHeader>
-      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PrecompiledHeaderFile>
+      </PrecompiledHeaderFile>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <StringPooling>true</StringPooling>
       <EnableEnhancedInstructionSet>AdvancedVectorExtensions2</EnableEnhancedInstructionSet>
@@ -158,17 +159,8 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="example.cpp" />
-    <ClCompile Include="src\core\px_aggregates.cpp" />
-    <ClCompile Include="src\core\px_gjk_support.cpp" />
-    <ClCompile Include="src\core\px_logger.cpp" />
-    <ClCompile Include="src\core\px_physics.cpp" />
-    <ClCompile Include="src\core\px_structs.cpp" />
-    <ClCompile Include="src\core\px_tasks.cpp" />
     <ClCompile Include="src\core\px_wrappers.cpp" />
     <ClCompile Include="src\ecs\px_colliders.cpp" />
-    <ClCompile Include="src\ecs\px_rigidbody.cpp" />
-    <ClCompile Include="src\memory\ememory.cpp" />
-    <ClCompile Include="src\pch.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\openps\core\px_aggregates.h" />
@@ -181,7 +173,8 @@
     <ClInclude Include="include\openps\ecs\px_colliders.h" />
     <ClInclude Include="include\openps\ecs\px_rigidbody.h" />
     <ClInclude Include="include\openps\memory\ememory.h" />
-    <ClInclude Include="src\pch.h" />
+    <ClInclude Include="include\openps\openps.h" />
+    <ClInclude Include="include\openps\openps_decl.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

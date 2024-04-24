@@ -1,5 +1,4 @@
-﻿#include <pch.h>
-#include <openps.h>
+﻿#include <openps.h>
 #include <chrono>
 
 namespace
@@ -36,7 +35,7 @@ static bool initialize()
     return true;
 }
 
-static void update(float dt)
+static bool update(float dt)
 {
     openps::logger::log_message("Update");
     physics->update(dt);
@@ -48,7 +47,10 @@ static void update(float dt)
 
     const auto pos2 = rb2->getPosition();
     openps::logger::log_message(std::to_string(pos2.y).c_str());
+
     physics->unlockRead();
+
+    return true;
 }
 
 static void release()
@@ -56,7 +58,7 @@ static void release()
     physics.reset();
 }
 
-int main()
+int main(int argc, char* argv[])
 {
     if (!initialize())
     {
@@ -71,10 +73,13 @@ int main()
 
         while (true)
         {
-            update(elapsed_time);
+            bool successStep = update(elapsed_time);
 
             auto end = std::chrono::high_resolution_clock::now();
             elapsed_time = std::chrono::duration<float, std::milli>(end - start).count();
+
+            if (!successStep)
+                break;
         }
 
         release();

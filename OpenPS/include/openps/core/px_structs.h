@@ -1,5 +1,7 @@
 #pragma once
 
+#include <openps_decl.h>
+
 namespace openps
 {
 	struct rigidbody;

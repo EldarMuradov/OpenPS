@@ -1,5 +1,7 @@
 #pragma once
 
+#include <openps_decl.h>
+
 namespace openps
 {
 	using namespace physx;
@@ -16,7 +18,10 @@ namespace openps
 		BoundingBox
 	};
 
-	template<typename VBT, typename IBT>
+	template<typename T_>
+	using VBT_ = std::enable_if_t<sizeof(T_) == sizeof(physx::PxVec3), bool>;
+
+	template<typename VBT, typename IBT, VBT_<VBT> = true>
 	struct triangle_mesh_descriptor
 	{
 		VBT* vertexBuffer = nullptr;
@@ -27,7 +32,7 @@ namespace openps
 		size_t indexBufferSize{};
 	};
 
-	template<typename VBT>
+	template<typename VBT, VBT_<VBT> = true>
 	struct convex_mesh_descriptor
 	{
 		VBT* vertexBuffer = nullptr;
@@ -56,24 +61,45 @@ namespace openps
 
 	struct px_triangle_mesh_collider_builder
 	{
-		template<typename VBT, typename IBT>
+		template<typename VBT, typename IBT, VBT_<VBT> = true>
 		NODISCARD PxTriangleMesh* buildMesh(triangle_mesh_descriptor<VBT, IBT> desc) { return nullptr; }
 	};
 
 	struct px_convex_mesh_collider_builder
 	{
-		template<typename VBT>
+		template<typename VBT, VBT_<VBT> = true>
 		NODISCARD PxConvexMesh* buildMesh(convex_mesh_descriptor<VBT> desc) { return nullptr; }
 	};
 
-	void enableShapeVisualization(PxShape* shape) noexcept;
-	void disableShapeVisualization(PxShape* shape) noexcept;
+	inline void enableShapeVisualization(PxShape* shape) noexcept
+	{
+		shape->setFlag(PxShapeFlag::eVISUALIZATION, true);
+	}
 
-	void enableShapeInContactTests(PxShape* shape) noexcept;
-	void disableShapeInContactTests(PxShape* shape) noexcept;
+	inline void disableShapeVisualization(PxShape* shape) noexcept
+	{
+		shape->setFlag(PxShapeFlag::eVISUALIZATION, false);
+	}
 
-	void enableShapeInSceneQueryTests(PxShape* shape) noexcept;
-	void disableShapeInSceneQueryTests(PxShape* shape) noexcept;
+	inline void enableShapeInContactTests(PxShape* shape) noexcept
+	{
+		shape->setFlag(PxShapeFlag::eSIMULATION_SHAPE, true);
+	}
+
+	inline void disableShapeInContactTests(PxShape* shape) noexcept
+	{
+		shape->setFlag(PxShapeFlag::eSIMULATION_SHAPE, false);
+	}
+
+	inline void enableShapeInSceneQueryTests(PxShape* shape) noexcept
+	{
+		shape->setFlag(PxShapeFlag::eSCENE_QUERY_SHAPE, true);
+	}
+
+	inline void disableShapeInSceneQueryTests(PxShape* shape) noexcept
+	{
+		shape->setFlag(PxShapeFlag::eSCENE_QUERY_SHAPE, false);
+	}
 
 	struct bounding_box
 	{
@@ -91,14 +117,13 @@ namespace openps
 
 		virtual ~collider_base() {};
 
-		NODISCARD PxShape* getShape() const noexcept { return shape; }
-		void setShape(PxShape* newShape) noexcept { shape = newShape; }
+		NODISCARD PxGeometry* getGeometry() noexcept { return geometry; }
 
-		virtual void release();
+		virtual void release() { RELEASE_PTR(geometry) }
 
 		NODISCARD collider_type getType() const noexcept { return type; }
 
-		virtual bool createShape() = 0;
+		virtual PxGeometry* createGeometry() = 0;
 
 		template<typename T, ColliderType<T> = true>
 		NODISCARD T* is()
@@ -109,8 +134,7 @@ namespace openps
 	protected:
 		collider_type type = collider_type::None;
 
-		PxShape* shape = nullptr;
-		PxMaterial* material = nullptr;
+		PxGeometry* geometry = nullptr;
 	};
 
 	struct box_collider : collider_base
@@ -124,9 +148,14 @@ namespace openps
 			this->z = z;
 		};
 
-		virtual ~box_collider();
+		virtual ~box_collider() {}
 
-		bool createShape() override;
+		PxGeometry* createGeometry() override
+		{
+			geometry = new PxBoxGeometry(x, y, z);
+
+			return geometry;
+		}
 
 		float x{}, y{}, z{};
 	};
@@ -140,9 +169,14 @@ namespace openps
 			type = collider_type::Sphere;
 		};
 
-		virtual ~sphere_collider();
+		virtual ~sphere_collider() {}
 
-		bool createShape() override;
+		PxGeometry* createGeometry() override
+		{
+			geometry = new PxSphereGeometry(radius);
+
+			return geometry;
+		}
 
 		float radius{};
 	};
@@ -157,12 +191,75 @@ namespace openps
 			height = h;
 		};
 
-		virtual ~capsule_collider();
+		virtual ~capsule_collider() {}
 
-		bool createShape() override;
+		PxGeometry* createGeometry() override
+		{
+			geometry = new PxCapsuleGeometry(radius, height / 2.0f);
+
+			return geometry;
+		}
 
 		float height{}, radius{};
 	};
+
+	inline NODISCARD openps::bounding_box calculateBoundingBox(const std::vector<physx::PxVec3>& positions)
+	{
+		openps::bounding_box box;
+		if (positions.empty())
+			return box;
+
+		box.minCorner = positions[0];
+		box.maxCorner = positions[0];
+
+		for (const auto& position : positions)
+		{
+			box.minCorner = physx::min(box.minCorner, position);
+			box.maxCorner = physx::max(box.maxCorner, position);
+		}
+
+		return box;
+	}
+
+	inline void createMeshFromBoundingBox(const openps::bounding_box& box, std::vector<physx::PxVec3>& vertices, std::vector<uint32_t>& indices)
+	{
+		physx::PxVec3 p0 = box.minCorner;
+		physx::PxVec3 p1 = physx::PxVec3(box.maxCorner.x, box.minCorner.y, box.minCorner.z);
+		physx::PxVec3 p2 = physx::PxVec3(box.maxCorner.x, box.minCorner.y, box.maxCorner.z);
+		physx::PxVec3 p3 = physx::PxVec3(box.minCorner.x, box.minCorner.y, box.maxCorner.z);
+		physx::PxVec3 p4 = physx::PxVec3(box.minCorner.x, box.maxCorner.y, box.minCorner.z);
+		physx::PxVec3 p5 = physx::PxVec3(box.maxCorner.x, box.maxCorner.y, box.minCorner.z);
+		physx::PxVec3 p6 = box.maxCorner;
+		physx::PxVec3 p7 = physx::PxVec3(box.minCorner.x, box.maxCorner.y, box.maxCorner.z);
+
+		vertices.push_back({ p0 });
+		vertices.push_back({ p1 });
+		vertices.push_back({ p2 });
+		vertices.push_back({ p3 });
+		vertices.push_back({ p4 });
+		vertices.push_back({ p5 });
+		vertices.push_back({ p6 });
+		vertices.push_back({ p7 });
+
+		uint32_t boxIndices[36] =
+		{
+			0, 1, 2,
+			2, 3, 0,
+			4, 5, 6,
+			6, 7, 4,
+			0, 1, 5,
+			5, 4, 0,
+			2, 3, 7,
+			7, 6, 2,
+			0, 4, 7,
+			7, 3, 0,
+			1, 5, 6,
+			6, 2, 1
+		};
+
+		for (int i = 0; i < 36; i++)
+			indices.push_back(boxIndices[i]);
+	}
 
 	struct bounding_box_collider : collider_base
 	{
@@ -172,63 +269,59 @@ namespace openps
 			type = collider_type::BoundingBox;
 		};
 
-		virtual ~bounding_box_collider();
+		virtual ~bounding_box_collider() {}
 
-		bool createShape() override;
+		PxGeometry* createGeometry() override { return nullptr; }
 
 		bounding_box box{};
 	};
 
-	template<typename VBT, typename IBT>
+	template<typename VBT, typename IBT, VBT_<VBT> = true>
 	struct triangle_mesh_collider : collider_base
 	{
 		triangle_mesh_collider() = default;
-		triangle_mesh_collider(float size, triangle_mesh_descriptor<VBT, IBT> desc) noexcept : descriptor(desc), modelSize(size)
+		triangle_mesh_collider(VBT size, triangle_mesh_descriptor<VBT, IBT> desc) noexcept : descriptor(desc), modelSize(size)
 		{
 			type = collider_type::TriangleMesh;
 		};
 
 		virtual ~triangle_mesh_collider() {}
 
-		bool createShape() override { return false; }
+		PxGeometry* createGeometry() override { return nullptr; }
 
 		void release() override
 		{
-			PX_RELEASE(material)
-			PX_RELEASE(shape)
 			RELEASE_PTR(descriptor.vertexBuffer)
 			RELEASE_PTR(descriptor.indexBuffer)
 		}
 
 		triangle_mesh_descriptor<VBT, IBT> descriptor{};
 
-		float modelSize{};
+		VBT modelSize{};
 	};
 
-	template<typename VBT>
+	template<typename VBT, VBT_<VBT> = true>
 	struct convex_mesh_collider : collider_base
 	{
 		convex_mesh_collider() = default;
-		convex_mesh_collider(float size, convex_mesh_descriptor<VBT> desc) noexcept : descriptor(desc), modelSize(size)
+		convex_mesh_collider(VBT size, convex_mesh_descriptor<VBT> desc) noexcept : descriptor(desc), modelSize(size)
 		{
 			type = collider_type::ConvexMesh;
 		};
 
 		virtual ~convex_mesh_collider() {}
 
-		bool createShape() override { return false; }
+		PxGeometry* createGeometry() override { return nullptr; }
 
 		void release() override
 		{
-			PX_RELEASE(material)
-			PX_RELEASE(shape)
 			RELEASE_PTR(descriptor.vertexBuffer)
 			RELEASE_PTR(descriptor.indexBuffer)
 		}
 
 		convex_mesh_descriptor<VBT> descriptor{};
 
-		float modelSize{};
+		VBT modelSize{};
 	};
 
 	struct plane_collider : collider_base
@@ -241,12 +334,13 @@ namespace openps
 
 		~plane_collider() {}
 
-		bool createShape() override;
-		void release() override 
+		bool createShape();
+
+		PxGeometry* createGeometry() override { return nullptr; };
+
+		void release() override
 		{
-			PX_RELEASE(material)
 			PX_RELEASE(plane)
-			PX_RELEASE(shape)
 		}
 
 		PxVec3 position{};
