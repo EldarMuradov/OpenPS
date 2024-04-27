@@ -12,7 +12,8 @@ It provides high-level API to work with Rigidbodies, Colliders, Meshes, Logging,
 
 - C++ 20
 - Visual Studio 2022
-- CUDA capable GPU
+- CUDA capable GPU (optional for GPU computing)
+- Cmake
 
 ## Getting started
 
