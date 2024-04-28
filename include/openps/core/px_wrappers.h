@@ -16,16 +16,9 @@ namespace openps
 
 	struct allocator_callback : PxAllocatorCallback
 	{
-		void* allocate(size_t size, const char* typeName, const char* filename, int line) override
-		{
-			ASSERT(size < GB(1));
-			return _aligned_malloc(size, 16);
-		}
+		void* allocate(size_t size, const char* typeName, const char* filename, int line) override;
 
-		void deallocate(void* ptr) override
-		{
-			_aligned_free(ptr);
-		}
+		void deallocate(void* ptr) override;
 	};
 
 	struct simulation_filter_callback : PxSimulationFilterCallback
@@ -52,29 +45,11 @@ namespace openps
 		};
 	};
 
-	struct query_filter : public PxQueryFilterCallback
+	struct query_filter : PxQueryFilterCallback
 	{
-		PxQueryHitType::Enum preFilter(const PxFilterData& filterData, const PxShape* shape, const PxRigidActor* actor, PxHitFlags& queryFlags) override
-		{
-			if (!shape)
-				return PxQueryHitType::eNONE;
+		PxQueryHitType::Enum preFilter(const PxFilterData& filterData, const PxShape* shape, const PxRigidActor* actor, PxHitFlags& queryFlags) override;
 
-			const PxFilterData shapeFilter = shape->getQueryFilterData();
-			if ((filterData.word0 & shapeFilter.word0) == 0)
-				return PxQueryHitType::eNONE;
-
-			const bool hitTriggers = filterData.word2 != 0;
-			if (!hitTriggers && shape->getFlags() & PxShapeFlag::eTRIGGER_SHAPE)
-				return PxQueryHitType::eNONE;
-
-			const bool blockSingle = filterData.word1 != 0;
-			return blockSingle ? PxQueryHitType::eBLOCK : PxQueryHitType::eTOUCH;
-		}
-
-		PxQueryHitType::Enum postFilter(const PxFilterData& filterData, const PxQueryHit& hit, const PxShape* shape, const PxRigidActor* actor) override
-		{
-			return PxQueryHitType::eNONE;
-		}
+		PxQueryHitType::Enum postFilter(const PxFilterData& filterData, const PxQueryHit& hit, const PxShape* shape, const PxRigidActor* actor) override;
 	};
 
 	struct profiler_callback : PxProfilerCallback
@@ -93,17 +68,7 @@ namespace openps
 
 	struct error_reporter : PxErrorCallback
 	{
-		void reportError(PxErrorCode::Enum code, const char* message, const char* file, int line) override
-		{
-			if (message)
-			{
-				std::stringstream stream{};
-				stream << message << " in file: " << file << " in line: " << line;
-				logger::log_error(stream.str().c_str());
-			}
-			else
-				logger::log_error("PhysX Error!");
-		}
+		void reportError(PxErrorCode::Enum code, const char* message, const char* file, int line) override;
 	};
 
 	struct contact_point
@@ -136,13 +101,7 @@ namespace openps
 			return thisVelocity - otherVelocity;
 		}
 
-		void swapObjects()
-		{
-			if (!thisActor || !otherActor)
-				return;
-			::std::swap(thisActor, otherActor);
-			::std::swap(thisVelocity, otherVelocity);
-		}
+		void swapObjects() noexcept;
 	};
 
 	struct simulation_event_callback : PxSimulationEventCallback
@@ -151,15 +110,7 @@ namespace openps
 
 		typedef ::std::pair<rigidbody*, rigidbody*> colliders_pair;
 
-		void clear() noexcept
-		{
-			newCollisions.clear();
-			removedCollisions.clear();
-			kinematicsToRemoveFlag.clear();
-
-			newTriggerPairs.clear();
-			lostTriggerPairs.clear();
-		}
+		void clear() noexcept;
 
 		void sendCollisionEvents();
 
@@ -255,5 +206,5 @@ namespace openps
 		}
 	};
 
-	PxRigidActor* createRigidbodyActor(rigidbody* rb, collider_base* collider, const PxTransform& trs);
+	PxRigidActor* createRigidbodyActor(rigidbody* rb, collider_base* collider, const PxTransform& trs) noexcept;
 }

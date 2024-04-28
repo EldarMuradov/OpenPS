@@ -30,8 +30,12 @@ include/openps/core/px_physics.h
 include/openps/core/px_structs.h
 include/openps/core/px_tasks.h
 include/openps/core/px_wrappers.h
+src/memory/ememory.cpp
 src/core/px_wrappers.cpp
-src/ecs/px_colliders.cpp)
+src/core/px_physics.cpp
+src/core/px_gjk_support.cpp
+src/ecs/px_colliders.cpp
+src/ecs/px_rigidbody.cpp)
 
 add_library(OpenPS STATIC ${Sources})
 
@@ -46,6 +50,8 @@ else()
 endif()
 
 set(PHYSX_INCLUDE_DIRS ext/PhysX/physx ext/CUDA/include)
+
+# ext/bin/Release/PhysXGpu_64.dll  is too large to keep it in repo
 
 set(PHYSX_BIN_RELEASE_PATHES ext/bin/Release/PhysX_64.dll ext/bin/Release/PhysXGpu_64.dll ext/bin/Release/PhysXFoundation_64.dll ext/bin/Release/PhysXCooking_64.dll ext/bin/Release/PhysXCommon_64.dll ext/bin/Release/PhysXDevice64.dll)
 set(PHYSX_BIN_DEBUG_PATHES ext/bin/Debug/PhysX_64.dll ext/bin/Debug/PhysXGpu_64.dll ext/bin/Debug/PhysXFoundation_64.dll ext/bin/Debug/PhysXCooking_64.dll ext/bin/Debug/PhysXCommon_64.dll ext/bin/Debug/PhysXDevice64.dll)

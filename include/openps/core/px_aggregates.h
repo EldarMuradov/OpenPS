@@ -8,19 +8,15 @@ namespace openps
 	{
 		px_aggregate() = default;
 
-		px_aggregate(uint8_t nb, bool sc = true) noexcept : nbActors(nb), selfCollisions(sc)
-		{
-			aggregate = openps::physics_holder::physicsRef->getPhysicsImpl()->createAggregate(nbActors, selfCollisions, physx::PxAggregateFilterHint());
-			openps::physics_holder::physicsRef->addAggregate(aggregate);
-		}
+		px_aggregate(uint8_t nb, bool sc = true) noexcept;
 
-		~px_aggregate() { openps::physics_holder::physicsRef->removeAggregate(aggregate); PX_RELEASE(aggregate) }
+		~px_aggregate();
 
-		void addActor(physx::PxActor* actor) noexcept { aggregate->addActor(*actor); }
-		void removeActor(physx::PxActor* actor) noexcept { aggregate->removeActor(*actor); }
+		void addActor(physx::PxActor* actor) noexcept;
+		void removeActor(physx::PxActor* actor) noexcept;
 
-		NODISCARD uint8_t getNbActors() const noexcept { return nbActors; }
-		NODISCARD bool isSelfCollision() const noexcept { return selfCollisions; }
+		NODISCARD const uint8_t getNbActors() const noexcept { return nbActors; }
+		NODISCARD const bool isSelfCollision() const noexcept { return selfCollisions; }
 
 	private:
 		physx::PxAggregate* aggregate = nullptr;

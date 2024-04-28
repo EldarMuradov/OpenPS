@@ -31,7 +31,7 @@ namespace openps
 		light_cpu_task() = default;
 
 		template<IsCallableFunc<Func, Args...> = true>
-		light_cpu_task(std::function<Func(Args...)> f, Args&&... ars)
+		light_cpu_task(std::function<Func(Args...)> f, Args&&... ars) noexcept
 			: func(f),
 			args(std::forward<Args>(ars)...) {}
 		~light_cpu_task() {}
@@ -41,13 +41,13 @@ namespace openps
 
 	private:
 		template <typename... Args, int... Is>
-		void call(std::tuple<Args...>& tup, helper::index<Is...>)
+		void call(std::tuple<Args...>& tup, helper::index<Is...>) noexcept
 		{
 			func(std::get<Is>(tup)...);
 		}
 
 		template <typename... Args>
-		void call(std::tuple<Args...>& tup)
+		void call(std::tuple<Args...>& tup) noexcept
 		{
 			call(tup, helper::gen_seq<sizeof...(Args)>{});
 		}

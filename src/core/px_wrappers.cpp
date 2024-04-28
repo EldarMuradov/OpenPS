@@ -17,6 +17,16 @@ static void clearColliderFromCollection(const openps::rigidbody* collider,
 	}
 }
 
+void openps::simulation_event_callback::clear() noexcept
+{
+	newCollisions.clear();
+	removedCollisions.clear();
+	kinematicsToRemoveFlag.clear();
+
+	newTriggerPairs.clear();
+	lostTriggerPairs.clear();
+}
+
 void openps::simulation_event_callback::sendCollisionEvents()
 {
 	for (auto& c : removedCollisions)
@@ -180,7 +190,7 @@ physx::PxTriangleMesh* openps::createTriangleMesh(PxTriangleMeshDesc desc)
 	return nullptr;
 }
 
-physx::PxRigidActor* openps::createRigidbodyActor(rigidbody* rb, collider_base* collider, const PxTransform& trs)
+physx::PxRigidActor* openps::createRigidbodyActor(rigidbody* rb, collider_base* collider, const PxTransform& trs) noexcept
 {
 	if (!rb || !collider)
 		return nullptr;
@@ -232,4 +242,57 @@ physx::PxRigidActor* openps::createRigidbodyActor(rigidbody* rb, collider_base* 
 	}
 
 	return nullptr;
+}
+
+void openps::collision::swapObjects() noexcept
+{
+	if (!thisActor || !otherActor)
+		return;
+	::std::swap(thisActor, otherActor);
+	::std::swap(thisVelocity, otherVelocity);
+}
+
+void openps::error_reporter::reportError(PxErrorCode::Enum code, const char* message, const char* file, int line)
+{
+	if (message)
+	{
+		std::stringstream stream{};
+		stream << message << " in file: " << file << " in line: " << line;
+		logger::log_error(stream.str().c_str());
+	}
+	else
+		logger::log_error("PhysX Error!");
+}
+
+physx::PxQueryHitType::Enum openps::query_filter::preFilter(const PxFilterData& filterData, const PxShape* shape, const PxRigidActor* actor, PxHitFlags& queryFlags)
+{
+	if (!shape)
+		return PxQueryHitType::eNONE;
+
+	const PxFilterData shapeFilter = shape->getQueryFilterData();
+	if ((filterData.word0 & shapeFilter.word0) == 0)
+		return PxQueryHitType::eNONE;
+
+	const bool hitTriggers = filterData.word2 != 0;
+	if (!hitTriggers && shape->getFlags() & PxShapeFlag::eTRIGGER_SHAPE)
+		return PxQueryHitType::eNONE;
+
+	const bool blockSingle = filterData.word1 != 0;
+	return blockSingle ? PxQueryHitType::eBLOCK : PxQueryHitType::eTOUCH;
+}
+
+physx::PxQueryHitType::Enum openps::query_filter::postFilter(const PxFilterData& filterData, const PxQueryHit& hit, const PxShape* shape, const PxRigidActor* actor)
+{
+	return PxQueryHitType::eNONE;
+}
+
+void* openps::allocator_callback::allocate(size_t size, const char* typeName, const char* filename, int line)
+{
+	ASSERT(size < GB(1));
+	return _aligned_malloc(size, 16);
+}
+
+void openps::allocator_callback::deallocate(void* ptr)
+{
+	_aligned_free(ptr);
 }

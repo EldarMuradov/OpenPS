@@ -1,9 +1,7 @@
 #pragma once
 
 #include <openps_decl.h>
-
 #include <core/px_logger.h>
-
 #include <ecs/px_colliders.h>
 
 namespace openps
@@ -41,63 +39,33 @@ namespace openps
 		rigidbody() = default;
 		rigidbody(uint32_t hndl, rigidbody_type tp) noexcept : handle(hndl), type(tp) { }
 
-		NODISCARD const PxVec3 getPosition() const noexcept { return actor->getGlobalPose().p; }
-		void setPosition(const PxVec3& pos) noexcept { actor->setGlobalPose(PxTransform(pos, getRotation())); }
-		void setPosition(PxVec3&& pos) noexcept { actor->setGlobalPose(PxTransform(pos, getRotation())); }
+		NODISCARD const PxVec3 getPosition() const noexcept;
 
-		NODISCARD const PxQuat getRotation() const noexcept { return actor->getGlobalPose().q; }
-		void setRotation(const PxQuat& rot) noexcept { actor->setGlobalPose(PxTransform(getPosition(), rot)); }
-		void setRotation(PxQuat&& rot) noexcept { actor->setGlobalPose(PxTransform(getPosition(), rot)); }
+		void setPosition(const PxVec3& pos) noexcept;
+		void setPosition(PxVec3&& pos) noexcept;
+
+		NODISCARD const PxQuat getRotation() const noexcept;
+
+		void setRotation(const PxQuat& rot) noexcept;
+		void setRotation(PxQuat&& rot) noexcept;
 
 		NODISCARD const float getMass() const noexcept { return mass; }
 
 		NODISCARD PxRigidActor* getRigidActor() const noexcept { return actor; }
 
-		void setMass(float newMass) noexcept
-		{
-			mass = newMass;
-			actor->is<PxRigidDynamic>()->setMass(mass);
-		}
+		void setMass(float newMass) noexcept;
 
-		void onCollisionExit(rigidbody* collision) const
-		{
-			openps::logger::log_message("collision enter");
-			if (onCollisionExitFunc)
-				onCollisionExitFunc(collision);
-		}
+		void onCollisionExit(rigidbody* collision) const noexcept;
 
-		void onCollisionStay(rigidbody* collision) const
-		{
-			if (onCollisionStayFunc)
-				onCollisionStayFunc(collision);
-		}
+		void onCollisionStay(rigidbody* collision) const noexcept;
 
-		void onCollisionEnter(rigidbody* collision) const
-		{
-			openps::logger::log_message("collision enter");
-			if (onCollisionEnterFunc)
-				onCollisionEnterFunc(collision);
-		}
+		void onCollisionEnter(rigidbody* collision) const noexcept;
 
-		void onTriggerExit(rigidbody* trigger) const
-		{
-			openps::logger::log_message("trigger exit");
-			if (onTriggerExitFunc)
-				onTriggerExitFunc(trigger);
-		}
+		void onTriggerExit(rigidbody* trigger) const noexcept;
 
-		void onTriggerStay(rigidbody* trigger) const
-		{
-			if (onTriggerStayFunc)
-				onTriggerStayFunc(trigger);
-		}
+		void onTriggerStay(rigidbody* trigger) const noexcept;
 
-		void onTriggerEnter(rigidbody* trigger) const
-		{
-			openps::logger::log_message("trigger exit");
-			if (onTriggerEnterFunc)
-				onTriggerEnterFunc(trigger);
-		}
+		void onTriggerEnter(rigidbody* trigger) const noexcept;
 
 		on_collision_enter_rb_func_ptr onCollisionEnterFunc = nullptr;
 		on_collision_exit_rb_func_ptr onCollisionExitFunc = nullptr;
@@ -110,9 +78,6 @@ namespace openps
 		uint32_t handle{};
 
 	private:
-		PxMaterial* material = nullptr;
-
-		PxRigidActor* actor = nullptr;
 
 		float restitution = 0.6f;
 
@@ -127,11 +92,15 @@ namespace openps
 		PxRigidDynamicLockFlags rotLockNative;
 		PxRigidDynamicLockFlags posLockNative;
 
-		bool useGravity = true;
-
 		rigidbody_type type = rigidbody_type::None;
 
+		bool useGravity = true;
+
+		PxMaterial* material = nullptr;
+
+		PxRigidActor* actor = nullptr;
+
 	private:
-		friend PxRigidActor* createRigidbodyActor(rigidbody* rb, collider_base* collider, const PxTransform& trs);
+		friend PxRigidActor* createRigidbodyActor(rigidbody* rb, collider_base* collider, const PxTransform& trs) noexcept;
 	};
 }

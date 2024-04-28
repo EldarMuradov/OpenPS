@@ -2,7 +2,7 @@
 
 #include <openps_decl.h>
 
-NODISCARD inline uint32_t alignTo(uint32_t currentOffset, uint32_t alignment)
+NODISCARD inline uint32_t alignTo(uint32_t currentOffset, uint32_t alignment) noexcept
 {
 	uint32_t mask = alignment - 1;
 	uint32_t misalignment = currentOffset & mask;
@@ -10,7 +10,7 @@ NODISCARD inline uint32_t alignTo(uint32_t currentOffset, uint32_t alignment)
 	return currentOffset + adjustment;
 }
 
-NODISCARD inline uint64_t alignTo(uint64_t currentOffset, uint64_t alignment)
+NODISCARD inline uint64_t alignTo(uint64_t currentOffset, uint64_t alignment) noexcept
 {
 	uint64_t mask = alignment - 1;
 	uint64_t misalignment = currentOffset & mask;
@@ -18,7 +18,7 @@ NODISCARD inline uint64_t alignTo(uint64_t currentOffset, uint64_t alignment)
 	return currentOffset + adjustment;
 }
 
-NODISCARD inline void* alignTo(void* currentAddress, uint64_t alignment)
+NODISCARD inline void* alignTo(void* currentAddress, uint64_t alignment) noexcept
 {
 	uint64_t mask = alignment - 1;
 	uint64_t misalignment = (uint64_t)(currentAddress)&mask;
@@ -26,12 +26,12 @@ NODISCARD inline void* alignTo(void* currentAddress, uint64_t alignment)
 	return (uint8_t*)currentAddress + adjustment;
 }
 
-inline bool rangesOverlap(uint64_t fromA, uint64_t toA, uint64_t fromB, uint64_t toB)
+inline bool rangesOverlap(uint64_t fromA, uint64_t toA, uint64_t fromB, uint64_t toB) noexcept
 {
 	return !(toA <= fromB || fromA >= toA);
 }
 
-inline bool rangesOverlap(void* fromA, void* toA, void* fromB, void* toB)
+inline bool rangesOverlap(void* fromA, void* toA, void* fromB, void* toB) noexcept
 {
 	return !(toA <= fromB || fromA >= toB);
 }
@@ -46,7 +46,6 @@ namespace openps
 	struct eallocator
 	{
 	protected:
-		uint8_t* memory = 0;
 		uint64_t committedMemory = 0;
 
 		uint64_t current = 0;
@@ -61,75 +60,29 @@ namespace openps
 
 		std::mutex mutex;
 
+		uint8_t* memory = 0;
+
 	public:
-		eallocator() {}
+		eallocator() noexcept {}
 		eallocator(const eallocator&) = delete;
 		eallocator(eallocator&&) = default;
 		~eallocator() { reset(true); }
 
-		void initialize(uint64_t minimumBlockSize = 0, uint64_t reserveSize = GB(8))
-		{
-			reset(true);
+		void initialize(uint64_t minimumBlockSize = 0, uint64_t reserveSize = GB(8)) noexcept;
 
-			memory = (uint8_t*)VirtualAlloc(0, reserveSize, MEM_RESERVE, PAGE_READWRITE);
+		void ensureFreeSize(uint64_t size) noexcept;
 
-			SYSTEM_INFO systemInfo;
-			GetSystemInfo(&systemInfo);
-
-			pageSize = systemInfo.dwPageSize;
-			sizeLeftTotal = reserveSize;
-			this->minimumBlockSize = minimumBlockSize;
-			this->reserveSize = reserveSize;
-		}
-
-		void ensureFreeSize(uint64_t size)
-		{
-			mutex.lock();
-			ensureFreeSizeInternal(size);
-			mutex.unlock();
-		}
-
-		NODISCARD void* allocate(uint64_t size, uint64_t alignment = 1, bool clearToZero = false)
-		{
-			if (size == 0)
-				return 0;
-
-			mutex.lock();
-
-			uint64_t mask = alignment - 1;
-			uint64_t misalignment = current & mask;
-			uint64_t adjustment = (misalignment == 0) ? 0 : (alignment - misalignment);
-			current += adjustment;
-
-			sizeLeftCurrent -= adjustment;
-			sizeLeftTotal -= adjustment;
-
-			ASSERT(sizeLeftTotal >= size);
-
-			ensureFreeSizeInternal(size);
-
-			uint8_t* result = memory + current;
-			current += size;
-			sizeLeftCurrent -= size;
-			sizeLeftTotal -= size;
-
-			mutex.unlock();
-
-			if (clearToZero)
-				memset(result, 0, size);
-
-			return result;
-		}
+		NODISCARD void* allocate(uint64_t size, uint64_t alignment = 4, bool clearToZero = false) noexcept;
 
 		template <typename T>
-		NODISCARD T* allocate(uint32_t count = 1, bool clearToZero = false)
+		NODISCARD T* allocate(uint32_t count = 1, bool clearToZero = false) noexcept
 		{
 			return (T*)allocate(sizeof(T) * count, alignof(T), clearToZero);
 		}
 
-		NODISCARD void* getCurrent(uint64_t alignment = 1)  const noexcept
+		NODISCARD void* getCurrent(uint64_t alignment = 4) const noexcept
 		{
-			memory + alignTo(current, alignment);
+			return memory + alignTo(current, alignment);
 		}
 
 		template <typename T>
@@ -138,49 +91,17 @@ namespace openps
 			return (T*)getCurrent(alignof(T));
 		}
 
-		void setCurrentTo(void* ptr) noexcept
-		{
-			current = (uint8_t*)ptr - memory;
-			sizeLeftCurrent = committedMemory - current;
-			sizeLeftTotal = reserveSize - current;
-		}
+		void setCurrentTo(void* ptr) noexcept;
 
-		void reset(bool freeMemory = false)
-		{
-			if (memory && freeMemory)
-			{
-				VirtualFree(memory, 0, MEM_RELEASE);
-				memory = 0;
-				committedMemory = 0;
-			}
+		void reset(bool freeMemory = false) noexcept;
 
-			resetToMarker(memory_marker{ 0 });
-		}
+		void resetToMarker(memory_marker marker) noexcept;
 
-		NODISCARD memory_marker getMarker() const noexcept { return { current }; }
-
-		void resetToMarker(memory_marker marker) noexcept
-		{
-			current = marker.before;
-			sizeLeftCurrent = committedMemory - current;
-			sizeLeftTotal = reserveSize - current;
-		}
+		NODISCARD const memory_marker getMarker() const noexcept { return { current }; }
 
 		NODISCARD uint8_t* base() const noexcept { return memory; }
 
 	protected:
-		void ensureFreeSizeInternal(uint64_t size)
-		{
-			if (sizeLeftCurrent < size)
-			{
-				uint64_t allocationSize = max(size, minimumBlockSize);
-				allocationSize = pageSize * bucketize(allocationSize, pageSize);
-				VirtualAlloc(memory + committedMemory, allocationSize, MEM_COMMIT, PAGE_READWRITE);
-
-				sizeLeftTotal += allocationSize;
-				sizeLeftCurrent += allocationSize;
-				committedMemory += allocationSize;
-			}
-		}
+		void ensureFreeSizeInternal(uint64_t size) noexcept;
 	};
 }
