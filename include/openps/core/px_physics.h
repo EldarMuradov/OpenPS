@@ -1,4 +1,5 @@
-#pragma once
+#ifndef _OPENPS_PHYSICS_
+#define _OPENPS_PHYSICS_
 
 #include <openps_decl.h>
 
@@ -193,3 +194,5 @@ namespace openps
 		}
 	};
 }
+
+#endif

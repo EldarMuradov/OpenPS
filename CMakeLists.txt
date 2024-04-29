@@ -32,6 +32,7 @@ include/openps/core/px_tasks.h
 include/openps/core/px_wrappers.h
 src/memory/ememory.cpp
 src/core/px_wrappers.cpp
+src/core/px_aggregates.cpp
 src/core/px_physics.cpp
 src/core/px_gjk_support.cpp
 src/ecs/px_colliders.cpp

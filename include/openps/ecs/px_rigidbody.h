@@ -1,4 +1,5 @@
-#pragma once
+#ifndef _OPENPS_RIGIDBODY_
+#define _OPENPS_RIGIDBODY_
 
 #include <openps_decl.h>
 #include <core/px_logger.h>
@@ -104,3 +105,5 @@ namespace openps
 		friend PxRigidActor* createRigidbodyActor(rigidbody* rb, collider_base* collider, const PxTransform& trs) noexcept;
 	};
 }
+
+#endif

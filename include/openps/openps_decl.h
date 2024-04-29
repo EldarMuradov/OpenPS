@@ -1,4 +1,32 @@
-#pragma once
+#ifndef _OPENPS_DECLS_
+#define _OPENPS_DECLS_
+
+#include <intrin.h>
+#include <xmmintrin.h>
+#include <Windows.h>
+#include <stdio.h>
+#include <assert.h>
+#include <ctype.h>
+#include <math.h>
+#include <tchar.h>
+#include <mutex>
+#include <limits>
+#include <array>
+#include <string>
+#include <vector>
+#include <iostream>
+#include <memory>
+#include <set>
+#include <unordered_map>
+#include <queue>
+#include <functional>
+#include <tuple>
+#include <intrin.h>
+#include <stddef.h>
+
+#include <cuda.h>
+#include <PxPhysics.h>
+#include <PxPhysicsAPI.h>
 
 #define PX_PHYSX_STATIC_LIB
 
@@ -18,7 +46,6 @@
 #define PX_ENABLE_PVD 0
 #endif
 
-#define PX_RELEASE(x)	if(x)	{ x->release(); x = nullptr;}
 #define UNUSED(x) (void)(x)
 
 #define RELEASE_PTR(ptr) if(ptr) { delete ptr; ptr = nullptr; }
@@ -27,30 +54,7 @@
 #define ASSERT(cond) \
 	(void)((!!(cond)) || (std::cout << "Assertion '" << #cond "' failed [" __FILE__ " : " << __LINE__ << "].\n", ::__debugbreak(), 0))
 
-#include <cuda.h>
-#include <PxPhysics.h>
-#include <PxPhysicsAPI.h>
-
-#include <Windows.h>
-#include <windowsx.h>
-#include <tchar.h>
-
-#include <mutex>
-#include <limits>
-#include <array>
-#include <string>
-#include <vector>
-#include <iostream>
-#include <memory>
-
-#include <set>
-#include <unordered_map>
-#include <queue>
-
-#include <functional>
-#include <tuple>
-
-static physx::PxVec3 gravity(0.0f, -9.8f, 0.0f);
+static inline physx::PxVec3 gravity(0.0f, -9.8f, 0.0f);
 
 template <typename T> using ref = std::shared_ptr<T>;
 template <typename T> using weakref = std::weak_ptr<T>;
@@ -59,7 +63,7 @@ template <typename F_, typename... Args>
 using IsCallableFunc = std::enable_if_t<std::is_invocable_v<F_, Args...>, bool>;
 
 template <typename T, typename... Args>
-NODISCARD inline ref<T> make_ref(Args&&... args)
+NODISCARD inline ref<T> make_ref(Args&&... args) noexcept
 {
 	return std::make_shared<T>(std::forward<Args>(args)...);
 }
@@ -80,13 +84,13 @@ template <typename T> inline constexpr bool is_ref_v = is_ref<T>::value;
 #endif
 
 template <typename T>
-NODISCARD constexpr inline auto min(T a, T b)
+NODISCARD constexpr inline auto min(T a, T b) noexcept
 {
 	return (a < b) ? a : b;
 }
 
 template <typename T>
-NODISCARD constexpr inline auto max(T a, T b)
+NODISCARD constexpr inline auto max(T a, T b) noexcept
 {
 	return (a < b) ? b : a;
 }
@@ -106,35 +110,35 @@ constexpr auto EPSILON = 1e-6f;
 #define rad2deg(rad) ((rad) * M_180_OVER_PI)
 
 template<typename T>
-constexpr auto KB(T n) { return (1024ull * (n)); }
+inline constexpr auto KB(T n) noexcept { return (1024ull * (n)); }
 
 template<typename T>
-constexpr auto MB(T n) { return (1024ull * KB(n)); }
+inline constexpr auto MB(T n) noexcept { return (1024ull * KB(n)); }
 
 template<typename T>
-constexpr auto GB(T n) { return (1024ull * MB(n)); }
+inline constexpr auto GB(T n) noexcept { return (1024ull * MB(n)); }
 
 template<typename T>
-constexpr auto BYTE_TO_KB(T b) { return ((b) / 1024); }
+inline constexpr auto BYTE_TO_KB(T b) noexcept { return ((b) / 1024); }
 
 template<typename T>
-constexpr auto BYTE_TO_MB(T b) { return ((b) / (1024 * 1024)); }
+inline constexpr auto BYTE_TO_MB(T b) noexcept { return ((b) / (1024 * 1024)); }
 
 template<typename T>
-constexpr auto BYTE_TO_GB(T b) { return ((b) / (1024 * 1024)); }
+inline constexpr auto BYTE_TO_GB(T b) noexcept { return ((b) / (1024 * 1024)); }
 
-NODISCARD static constexpr float lerp(float l, float u, float t) { return l + t * (u - l); }
-NODISCARD static constexpr float inverseLerp(float l, float u, float v) { return (v - l) / (u - l); }
-NODISCARD static constexpr float remap(float v, float oldL, float oldU, float newL, float newU) { return lerp(newL, newU, inverseLerp(oldL, oldU, v)); }
-NODISCARD static constexpr float clamp(float v, float l, float u) { float r = max(l, v); r = min(u, r); return r; }
-NODISCARD static constexpr uint32_t clamp(uint32_t v, uint32_t l, uint32_t u) { uint32_t r = max(l, v); r = min(u, r); return r; }
-NODISCARD static constexpr int32_t clamp(int32_t v, int32_t l, int32_t u) { int32_t r = max(l, v); r = min(u, r); return r; }
-NODISCARD static constexpr float clamp01(float v) { return clamp(v, 0.f, 1.f); }
-NODISCARD static constexpr float saturate(float v) { return clamp01(v); }
-NODISCARD static constexpr float smoothstep(float t) { return t * t * (3.f - 2.f * t); }
-NODISCARD static constexpr float smoothstep(float l, float u, float v) { return smoothstep(clamp01(inverseLerp(l, u, v))); }
-NODISCARD static constexpr uint32_t bucketize(uint32_t problemSize, uint32_t bucketSize) { return (problemSize + bucketSize - 1) / bucketSize; }
-NODISCARD static constexpr uint64_t bucketize(uint64_t problemSize, uint64_t bucketSize) { return (problemSize + bucketSize - 1) / bucketSize; }\
+NODISCARD inline constexpr float lerp(float l, float u, float t) noexcept { return l + t * (u - l); }
+NODISCARD inline constexpr float inverseLerp(float l, float u, float v) noexcept { return (v - l) / (u - l); }
+NODISCARD inline constexpr float remap(float v, float oldL, float oldU, float newL, float newU) noexcept { return lerp(newL, newU, inverseLerp(oldL, oldU, v)); }
+NODISCARD inline constexpr float clamp(float v, float l, float u) noexcept { float r = max(l, v); r = min(u, r); return r; }
+NODISCARD inline constexpr uint32_t clamp(uint32_t v, uint32_t l, uint32_t u) noexcept { uint32_t r = max(l, v); r = min(u, r); return r; }
+NODISCARD inline constexpr int32_t clamp(int32_t v, int32_t l, int32_t u) noexcept { int32_t r = max(l, v); r = min(u, r); return r; }
+NODISCARD inline constexpr float clamp01(float v) noexcept { return clamp(v, 0.f, 1.f); }
+NODISCARD inline constexpr float saturate(float v) noexcept { return clamp01(v); }
+NODISCARD inline constexpr float smoothstep(float t) noexcept { return t * t * (3.f - 2.f * t); }
+NODISCARD inline constexpr float smoothstep(float l, float u, float v) noexcept { return smoothstep(clamp01(inverseLerp(l, u, v))); }
+NODISCARD inline constexpr uint32_t bucketize(uint32_t problemSize, uint32_t bucketSize) noexcept { return (problemSize + bucketSize - 1) / bucketSize; }
+NODISCARD inline constexpr uint64_t bucketize(uint64_t problemSize, uint64_t bucketSize) noexcept { return (problemSize + bucketSize - 1) / bucketSize; }\
 
 #define PX_SCENE_QUERY_SETUP(blockSingle) \
 const PxHitFlags hitFlags = PxHitFlag::ePOSITION | PxHitFlag::eNORMAL | PxHitFlag::eMESH_MULTIPLE | PxHitFlag::eUV; \
@@ -159,7 +163,7 @@ filterData.data.word2 = hitTriggers ? 1 : 0
 #define PX_SCENE_QUERY_COLLECT_OVERLAP() results.clear(); \
 		results.resize(buffer.getNbTouches()); \
 		size_t resultSize = results.size(); \
-		for (int32_t i = 0; i < resultSize; i++) \
+		for (size_t i = 0; i < resultSize; i++) \
 		{ \
 			auto& hitInfo = results[i]; \
 			const auto& hit = buffer.getTouch(i); \
@@ -168,9 +172,11 @@ filterData.data.word2 = hitTriggers ? 1 : 0
 
 namespace physx
 {
-	NODISCARD static PxVec2 min(const PxVec2& a, const PxVec2& b) noexcept { return PxVec2(std::min(a.x, b.x), std::min(a.y, b.y)); }
-	NODISCARD static PxVec3 min(const PxVec3& a, const PxVec3& b) noexcept { return PxVec3(std::min(a.x, b.x), std::min(a.y, b.y), std::min(a.z, b.z)); }
+	NODISCARD inline PxVec2 min(const PxVec2& a, const PxVec2& b) noexcept { return PxVec2(std::min(a.x, b.x), std::min(a.y, b.y)); }
+	NODISCARD inline PxVec3 min(const PxVec3& a, const PxVec3& b) noexcept { return PxVec3(std::min(a.x, b.x), std::min(a.y, b.y), std::min(a.z, b.z)); }
 
-	NODISCARD static PxVec2 max(const PxVec2& a, const PxVec2& b) noexcept { return PxVec2(std::max(a.x, b.x), std::max(a.y, b.y)); }
-	NODISCARD static PxVec3 max(const PxVec3& a, const PxVec3& b) noexcept { return PxVec3(std::max(a.x, b.x), std::max(a.y, b.y), std::max(a.z, b.z)); }
+	NODISCARD inline PxVec2 max(const PxVec2& a, const PxVec2& b) noexcept { return PxVec2(std::max(a.x, b.x), std::max(a.y, b.y)); }
+	NODISCARD inline PxVec3 max(const PxVec3& a, const PxVec3& b) noexcept { return PxVec3(std::max(a.x, b.x), std::max(a.y, b.y), std::max(a.z, b.z)); }
 }
+
+#endif

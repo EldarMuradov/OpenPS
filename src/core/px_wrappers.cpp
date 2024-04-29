@@ -5,7 +5,7 @@ static void clearColliderFromCollection(const openps::rigidbody* collider,
 	physx::PxArray<openps::simulation_event_callback::colliders_pair>& collection) noexcept
 {
 	const auto c = &collection[0];
-	for (int32_t i = 0; i < collection.size(); i++)
+	for (size_t i = 0; i < collection.size(); i++)
 	{
 		const openps::simulation_event_callback::colliders_pair cc = c[i];
 		if (cc.first == collider || cc.second == collider)

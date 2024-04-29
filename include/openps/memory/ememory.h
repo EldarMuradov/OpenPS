@@ -1,4 +1,5 @@
-#pragma once
+#ifndef _OPENPS_EMEMORY_
+#define _OPENPS_EMEMORY_
 
 #include <openps_decl.h>
 
@@ -105,3 +106,5 @@ namespace openps
 		void ensureFreeSizeInternal(uint64_t size) noexcept;
 	};
 }
+
+#endif

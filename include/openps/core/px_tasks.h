@@ -1,4 +1,5 @@
-#pragma once
+#ifndef _OPENPS_TASKS_
+#define _OPENPS_TASKS_
 
 #include <openps_decl.h>
 
@@ -57,3 +58,5 @@ namespace openps
 		std::function<Func(Args...)> func;
 	};
 }
+
+#endif

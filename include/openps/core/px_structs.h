@@ -1,4 +1,5 @@
-#pragma once
+#ifndef _OPENPS_STRUCTS_
+#define _OPENPS_STRUCTS_
 
 #include <openps_decl.h>
 
@@ -21,3 +22,5 @@ namespace openps
 		std::vector<uint32_t*> results{};
 	};
 }
+
+#endif

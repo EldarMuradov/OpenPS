@@ -1,4 +1,5 @@
-#pragma once
+#ifndef _OPENPS_LOGGER_
+#define _OPENPS_LOGGER_
 
 #include <iostream>
 
@@ -27,3 +28,5 @@ namespace openps
 		static void log_error(const char* message) { logErrorFunc(message); }
 	};
 }
+
+#endif

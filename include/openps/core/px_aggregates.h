@@ -1,4 +1,5 @@
-#pragma once
+#ifndef _OPENPS_AGGREGATES_
+#define _OPENPS_AGGREGATES_
 
 #include <core/px_physics.h>
 
@@ -25,3 +26,5 @@ namespace openps
 		bool selfCollisions = true;
 	};
 }
+
+#endif

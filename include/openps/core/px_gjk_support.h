@@ -1,4 +1,5 @@
-#pragma once
+#ifndef _OPENPS_GJK_
+#define _OPENPS_GJK_
 
 #include <openps_decl.h>
 
@@ -83,3 +84,5 @@ namespace openps
             PxContactBuffer& contactBuffer) noexcept;
     };
 }
+
+#endif

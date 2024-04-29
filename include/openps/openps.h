@@ -1,4 +1,5 @@
-#pragma once
+#ifndef _OPENPS_
+#define _OPENPS_
 
 #include <openps_decl.h>
 
@@ -12,3 +13,5 @@
 
 #include <ecs/px_rigidbody.h>
 #include <ecs/px_colliders.h>
+
+#endif

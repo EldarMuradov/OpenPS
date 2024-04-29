@@ -1,4 +1,5 @@
-#pragma once
+#ifndef _OPENPS_WRAPPERS_
+#define _OPENPS_WRAPPERS_
 
 #include <sstream>
 
@@ -208,3 +209,5 @@ namespace openps
 
 	PxRigidActor* createRigidbodyActor(rigidbody* rb, collider_base* collider, const PxTransform& trs) noexcept;
 }
+
+#endif

@@ -1,4 +1,5 @@
-#pragma once
+#ifndef _OPENPS_COLLIDERS_
+#define _OPENPS_COLLIDERS_
 
 #include <openps_decl.h>
 
@@ -258,3 +259,5 @@ namespace openps
 		PxRigidStatic* plane = nullptr;
 	};
 };
+
+#endif
