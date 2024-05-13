@@ -39,16 +39,17 @@ static bool update(float dt)
 {
     openps::logger::log_message("Update");
     physics->update(dt);
+    
+    {
+        openps::physics_lock_read lock{};
+        PX_UNUSED(lock);
 
-    physics->lockRead();
+        const auto pos1 = rb1->getPosition();
+        openps::logger::log_message(std::to_string(pos1.y).c_str());
 
-    const auto pos1 = rb1->getPosition();
-    openps::logger::log_message(std::to_string(pos1.y).c_str());
-
-    const auto pos2 = rb2->getPosition();
-    openps::logger::log_message(std::to_string(pos2.y).c_str());
-
-    physics->unlockRead();
+        const auto pos2 = rb2->getPosition();
+        openps::logger::log_message(std::to_string(pos2.y).c_str());
+    }
 
     return true;
 }

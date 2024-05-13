@@ -5,7 +5,7 @@ static void clearColliderFromCollection(const openps::rigidbody* collider,
 	physx::PxArray<openps::simulation_event_callback::colliders_pair>& collection) noexcept
 {
 	const auto c = &collection[0];
-	for (size_t i = 0; i < collection.size(); i++)
+	for (uint32_t i = 0; i < collection.size(); ++i)
 	{
 		const openps::simulation_event_callback::colliders_pair cc = c[i];
 		if (cc.first == collider || cc.second == collider)
@@ -79,14 +79,14 @@ void openps::simulation_event_callback::onContact(const PxContactPairHeader& pai
 	collision collision{};
 	PxContactPairExtraDataIterator iter(pairHeader.extraDataStream, pairHeader.extraDataStreamSize);
 
-	for (physx::PxU32 i = 0; i < nbPairs; i++)
+	for (physx::PxU32 i = 0; i < nbPairs; ++i)
 	{
 		const physx::PxContactPair& cp = pairs[i];
 		physx::PxU32 nbContacts = pairs[i].extractContacts(contacts, bufferSize);
 
 		const bool hasPostVelocities = !cp.flags.isSet(PxContactPairFlag::eACTOR_PAIR_LOST_TOUCH);
 
-		for (physx::PxU32 j = 0; j < nbContacts; j++)
+		for (physx::PxU32 j = 0; j < nbContacts; ++j)
 		{
 			physx::PxVec3 point = contacts[j].position;
 			physx::PxVec3 impulse = contacts[j].impulse;
@@ -95,8 +95,8 @@ void openps::simulation_event_callback::onContact(const PxContactPairHeader& pai
 
 			collision.impulse += impulse;
 
-			UNUSED(point);
 			//UNUSED(impulse);
+			UNUSED(point);
 			UNUSED(internalFaceIndex0);
 			UNUSED(internalFaceIndex1);
 		}

@@ -79,10 +79,8 @@ namespace openps
 		uint32_t handle{};
 
 	private:
-
+		float mass = 1.0f;
 		float restitution = 0.6f;
-
-		float mass = 1;
 
 		float dynamicFriction = 0.8f;
 		float staticFriction = 0.8f;

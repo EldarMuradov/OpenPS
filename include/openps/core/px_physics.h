@@ -82,7 +82,7 @@ namespace openps
 
 		NODISCARD PxMaterial* getDefaultMaterial() const noexcept { return defaultMaterial; }
 
-		const raycast_info raycast(rigidbody* rb, const PxVec3& dir, int maxDist = PX_NB_MAX_RAYCAST_DISTANCE, bool hitTriggers = true, uint32_t layerMask = 0, int maxHits = PX_NB_MAX_RAYCAST_HITS) noexcept;
+		const raycast_info raycast(rigidbody* rb, const PxVec3& dir, float maxDist = PX_NB_MAX_RAYCAST_DISTANCE, bool hitTriggers = true, uint32_t layerMask = 0) noexcept;
 
 		// Checking
 		const bool checkBox(const PxVec3& center, const PxVec3& halfExtents, const PxQuat& rotation, bool hitTriggers = false, uint32_t layerMask = 0) noexcept;
@@ -155,7 +155,7 @@ namespace openps
 			lock();
 		}
 
-		~physics_lock_read()
+		virtual ~physics_lock_read()
 		{
 			unlock();
 		}
@@ -178,7 +178,7 @@ namespace openps
 			lock();
 		}
 
-		~physics_lock_write()
+		virtual ~physics_lock_write()
 		{
 			unlock();
 		}

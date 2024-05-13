@@ -12,7 +12,7 @@ namespace openps
 		rigidbody* actor = nullptr;
 
 		float distance = 0.0f;
-		unsigned int hitCount = 0;
+		uint32_t hitCount = 0;
 		physx::PxVec3 position = physx::PxVec3(0.0f);
 	};
 

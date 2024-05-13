@@ -163,7 +163,7 @@ filterData.data.word2 = hitTriggers ? 1 : 0
 #define PX_SCENE_QUERY_COLLECT_OVERLAP() results.clear(); \
 		results.resize(buffer.getNbTouches()); \
 		size_t resultSize = results.size(); \
-		for (size_t i = 0; i < resultSize; i++) \
+		for (uint32_t i = 0; i < resultSize; ++i) \
 		{ \
 			auto& hitInfo = results[i]; \
 			const auto& hit = buffer.getTouch(i); \

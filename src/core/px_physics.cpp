@@ -57,7 +57,9 @@ void openps::physics::update(float dt)
 	const static float stepSize = 1.0f / (float)frameRate;
 	static constexpr uint64_t align = 16U;
 
-	const static uint32_t rawMemotySize = 32U;
+	static constexpr uint32_t rawMemotySize = 32U;
+
+	static constexpr uint32_t scratchMemBlockSize = (uint32_t)MB(rawMemotySize);
 
 	physics_lock_write lock{};
 
@@ -65,9 +67,9 @@ void openps::physics::update(float dt)
 
 	scene->getTaskManager()->startSimulation();
 
-	void* scratchMemBlock = allocator.allocate(MB(rawMemotySize), align, true);
+	void* scratchMemBlock = allocator.allocate(scratchMemBlockSize, align, true);
 
-	scene->simulate(stepSize, NULL, scratchMemBlock, MB(rawMemotySize));
+	scene->simulate(stepSize, NULL, scratchMemBlock, scratchMemBlockSize);
 
 	scene->fetchResults(true);
 
@@ -138,7 +140,7 @@ void openps::physics::unlockWrite() noexcept
 	scene->unlockWrite();
 }
 
-const openps::raycast_info openps::physics::raycast(rigidbody* rb, const PxVec3& dir, int maxDist, bool hitTriggers, uint32_t layerMask, int maxHits) noexcept
+const openps::raycast_info openps::physics::raycast(rigidbody* rb, const PxVec3& dir, float maxDist, bool hitTriggers, uint32_t layerMask) noexcept
 {
 	PX_SCENE_QUERY_SETUP(true);
 	PxRaycastBuffer buffer;
@@ -325,8 +327,8 @@ void openps::physics::initialize() noexcept
 	sceneDesc.gravity = gravity;
 	sceneDesc.cpuDispatcher = dispatcher;
 	sceneDesc.filterShader = contactReportFilterShader;
-	sceneDesc.kineKineFilteringMode = physx::PxPairFilteringMode::eKEEP;
-	sceneDesc.staticKineFilteringMode = physx::PxPairFilteringMode::eKEEP;
+	//sceneDesc.kineKineFilteringMode = physx::PxPairFilteringMode::eKEEP;
+	//sceneDesc.staticKineFilteringMode = physx::PxPairFilteringMode::eKEEP;
 	sceneDesc.simulationEventCallback = &simulationCallback;
 
 	sceneDesc.cudaContextManager = cudaContextManager;
@@ -341,17 +343,16 @@ void openps::physics::initialize() noexcept
 	sceneDesc.broadPhaseType = physx::PxBroadPhaseType::ePABP;
 #endif
 
+	sceneDesc.solverType = PxSolverType::eTGS;
+	sceneDesc.frictionType = PxFrictionType::ePATCH;
+
 	sceneDesc.flags |= PxSceneFlag::eENABLE_CCD;
 	sceneDesc.flags |= PxSceneFlag::eDISABLE_CCD_RESWEEP;
-
-	sceneDesc.frictionType = PxFrictionType::ePATCH;
 	sceneDesc.flags |= physx::PxSceneFlag::eENABLE_ACTIVE_ACTORS;
 	sceneDesc.flags |= PxSceneFlag::eENABLE_PCM;
-
-	sceneDesc.solverType = PxSolverType::eTGS;
-
 	sceneDesc.flags |= PxSceneFlag::eENABLE_ENHANCED_DETERMINISM;
 	sceneDesc.flags |= PxSceneFlag::eENABLE_STABILIZATION;
+
 	sceneDesc.filterCallback = &simulationFilterCallback;
 
 	scene = physicsImpl->createScene(sceneDesc);
